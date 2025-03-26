@@ -1,8 +1,9 @@
+import { APPDATA_PROVIDER } from 'src/constants';
 import { DataSource } from 'typeorm';
 
 export const databaseProviders = [
   {
-    provide: 'DATA_SOURCE',
+    provide: APPDATA_PROVIDER,
     useFactory: async () => {
       const port = process.env.DB_PORT ? parseInt(process.env.DB_PORT) : undefined
       const sync = process.env.DB_SYNCHRONIZE === 'true'

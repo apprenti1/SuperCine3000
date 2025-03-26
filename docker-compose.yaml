@@ -1,0 +1,26 @@
+services:
+    postgres:
+        image: postgres:latest
+        container_name: postgres_db
+        environment:
+            - POSTGRES_USER=${DB_USER}
+            - POSTGRES_PASSWORD=${DB_PASSWORD}
+            - POSTGRES_NAME=${DB_NAME}
+        ports:
+            - "${DB_PORT}:${DB_PORT}"
+        volumes:
+            - postgres_supercine3000_data:/var/lib/postgresql/data
+    
+    adminer:
+        image: adminer
+        container_name: adminer_ui
+        ports:
+            - "8080:8080"
+        depends_on:
+            - postgres
+        environment:
+            ADMINER_DEFAULT_SERVER: postgres
+
+
+volumes:
+    postgres_supercine3000_data:

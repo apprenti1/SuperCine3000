@@ -11,7 +11,6 @@ export class UsersService{
     ) {}
 
     async findAll() {
-        console.log("coucou")
         return this.userRepository.find()
     }
 }

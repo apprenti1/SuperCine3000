@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Post, Req, UsePipes } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Req, UsePipes } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { JoiValidationPipe } from "src/common/pipes/JoiValidationPipe";
 import { CreateUserRequest, createUserValidation } from "./validation/create-user.schema";
-import { UniqueUserPipe } from "src/common/pipes/UniqueUserPipe";
+import { ExistingUserPipe, UniqueUserPipe } from "src/common/pipes/UserExistencePipe";
+import { UserId, userIdValidation } from "./validation/user-id.schema";
 
 @Controller('users')
 export class UsersController{
@@ -17,5 +18,11 @@ export class UsersController{
     @UsePipes(new JoiValidationPipe(createUserValidation), UniqueUserPipe)
     register(@Body() createUserBody : CreateUserRequest){
         return this.usersService.createUser(createUserBody)
+    }
+
+    @Delete(':id')
+    @UsePipes(new JoiValidationPipe(userIdValidation), ExistingUserPipe)
+    deleteUser(@Param() params: UserId){
+        return this.usersService.deleteUser(params)
     }
 }

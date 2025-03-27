@@ -4,6 +4,7 @@ import { Repository } from "typeorm";
 import { User } from "./user.entity";
 import { CreateUserRequest } from "./validation/create-user.schema";
 import { hash } from "bcrypt";
+import { UserId } from "./validation/user-id.schema";
 
 @Injectable()
 export class UsersService{
@@ -14,6 +15,11 @@ export class UsersService{
 
     async findAll() {
         return this.userRepository.find()
+    }
+
+    async findById(id: number) {
+        const user = this.userRepository.findOne({where: {id: id}})
+        return user
     }
 
     async findByEmail(email: string) {
@@ -27,8 +33,6 @@ export class UsersService{
     }
 
     async createUser(createUserBody: CreateUserRequest){
-        console.log(process.env.SALT)
-        console.log(process.env.SALT ?? 10)
         const hashedPassword = await hash(createUserBody.password, parseInt(process.env.SALT ?? '10'))
         const bodyCopy = {...createUserBody}
         bodyCopy.password = hashedPassword
@@ -37,5 +41,11 @@ export class UsersService{
         const userCreated = await this.userRepository.save(user)
 
         return userCreated
+    }
+
+    async deleteUser(params: UserId){
+        const deleted = await this.userRepository.delete(params.id)
+
+        return deleted
     }
 }

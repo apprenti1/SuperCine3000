@@ -1,25 +1,31 @@
 import { Roles } from "src/enums/roles.enum";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class User {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column()
+    @Column({unique: true})
     email: string
 
-    @Column()
+    @Column({unique: true})
     username: string
 
     @Column()
     password: string
 
-    @Column()
+    @Column({default: Roles.customer})
     role: Roles
 
-    @Column()
+    @Column({default: 0})
     wallet: number
+
+    @CreateDateColumn({type: "timestamptz"})
+    createdAt: Date
+
+    @UpdateDateColumn({type: "timestamptz"})
+    updatedAt: Date
 
     constructor(
         id: number,

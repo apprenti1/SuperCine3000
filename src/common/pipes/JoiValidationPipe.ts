@@ -1,6 +1,6 @@
 import { ArgumentMetadata, BadRequestException, InternalServerErrorException, PipeTransform } from "@nestjs/common";
 import { isError, ObjectSchema } from "joi";
-import { generateValidationErrorMessage } from "./generate-validation-message";
+import { generateValidationErrorMessage } from "../generate-validation-message";
 
 export class JoiValidationPipe implements PipeTransform{
     constructor(private schema: ObjectSchema) {}

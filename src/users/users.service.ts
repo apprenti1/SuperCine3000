@@ -3,6 +3,7 @@ import { USER_REPOSITORY_PROVIDER } from "src/constants";
 import { Repository } from "typeorm";
 import { User } from "./user.entity";
 import { CreateUserRequest } from "./validation/create-user.schema";
+import { hash } from "bcrypt";
 
 @Injectable()
 export class UsersService{
@@ -26,7 +27,13 @@ export class UsersService{
     }
 
     async createUser(createUserBody: CreateUserRequest){
-        const user = this.userRepository.create({...createUserBody})
+        console.log(process.env.SALT)
+        console.log(process.env.SALT ?? 10)
+        const hashedPassword = await hash(createUserBody.password, parseInt(process.env.SALT ?? '10'))
+        const bodyCopy = {...createUserBody}
+        bodyCopy.password = hashedPassword
+
+        const user = this.userRepository.create(bodyCopy)
         const userCreated = await this.userRepository.save(user)
 
         return userCreated

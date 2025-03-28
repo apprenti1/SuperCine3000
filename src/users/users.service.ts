@@ -7,6 +7,7 @@ import { hash } from "bcrypt";
 import { UserId } from "./validation/user-id.schema";
 import { UpdateUserRequest } from "./validation/update-user.schema";
 import { ListUsersParam } from "./validation/list-users.schema";
+import { PaginationRequest } from "src/common/validation/PaginationRequest";
 
 @Injectable()
 export class UsersService{
@@ -15,8 +16,10 @@ export class UsersService{
         private userRepository : Repository<User>
     ) {}
 
-    async findAll(queryParams: ListUsersParam) {
+    async findAll(queryParams: ListUsersParam & PaginationRequest) {
         const query = this.userRepository.createQueryBuilder('user')
+
+        // Applying filters 
 
         if(queryParams.email !== undefined)
             query.andWhere('user.email = :email', { email: queryParams.email })
@@ -36,7 +39,21 @@ export class UsersService{
         if(queryParams.walletMin !== undefined)
             query.andWhere('user.wallet >= :walletMin', { walletMin: queryParams.walletMin })
 
-        return await query.getMany()
+        // Applying pagination
+
+        query.skip((queryParams.page - 1) * queryParams.limit)
+        query.take(queryParams.limit)
+
+        const [users, total] = await query.getManyAndCount()
+        const totalPages = Math.ceil(total / queryParams.limit)
+
+        return {
+            data: users,
+            page_size: queryParams.limit,
+            page: queryParams.page,
+            total_entities: total,
+            total_pages: totalPages
+        }
     }
 
     async findById(params: UserId) {

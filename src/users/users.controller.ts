@@ -6,6 +6,7 @@ import { ExistingUserPipe, UniqueUserPipe } from "./validation/pipes/UserExisten
 import { UserId, userIdValidation } from "./validation/user-id.schema";
 import { UpdateUserRequest, updateUserValidation } from "./validation/update-user.schema";
 import { ListUsersParam, listUsersValidation } from "./validation/list-users.schema";
+import { PaginationRequest } from "src/common/validation/PaginationRequest";
 
 @Controller('users')
 export class UsersController{
@@ -13,7 +14,7 @@ export class UsersController{
 
     @Get()
     @UsePipes(new JoiValidationPipe(listUsersValidation))
-    getUsers(@Query() queryParams: ListUsersParam){
+    getUsers(@Query() queryParams: ListUsersParam & PaginationRequest){
         return this.usersService.findAll(queryParams)
     }
 

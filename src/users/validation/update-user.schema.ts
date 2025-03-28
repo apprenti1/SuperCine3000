@@ -1,9 +1,9 @@
 import * as Joi from "joi";
 
 export interface UpdateUserRequest {
-    username: string,
-    email: string,
-    transactionAmount: number
+    username?: string,
+    email?: string,
+    transactionAmount?: number
 }
 
 export const updateUserValidation = Joi.object<UpdateUserRequest>({

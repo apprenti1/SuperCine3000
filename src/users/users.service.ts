@@ -6,6 +6,7 @@ import { CreateUserRequest } from "./validation/create-user.schema";
 import { hash } from "bcrypt";
 import { UserId } from "./validation/user-id.schema";
 import { UpdateUserRequest } from "./validation/update-user.schema";
+import { ListUsersParam } from "./validation/list-users.schema";
 
 @Injectable()
 export class UsersService{
@@ -14,8 +15,28 @@ export class UsersService{
         private userRepository : Repository<User>
     ) {}
 
-    async findAll() {
-        return this.userRepository.find()
+    async findAll(queryParams: ListUsersParam) {
+        const query = this.userRepository.createQueryBuilder('user')
+
+        if(queryParams.email !== undefined)
+            query.andWhere('user.email = :email', { email: queryParams.email })
+
+        if(queryParams.username !== undefined)
+            query.andWhere('user.username = :username', { username: queryParams.username })
+
+        if(queryParams.role !== undefined)
+            query.andWhere('user.role = :role', { role: queryParams.role })
+
+        if(queryParams.wallet !== undefined)
+            query.andWhere('user.wallet = :wallet', { wallet: queryParams.wallet })
+
+        if(queryParams.walletMax !== undefined)
+            query.andWhere('user.wallet <= :walletMax', { walletMax: queryParams.walletMax })
+
+        if(queryParams.walletMin !== undefined)
+            query.andWhere('user.wallet >= :walletMin', { walletMin: queryParams.walletMin })
+
+        return await query.getMany()
     }
 
     async findById(params: UserId) {

@@ -1,10 +1,11 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { USER_REPOSITORY_PROVIDER } from "src/constants";
 import { Repository } from "typeorm";
 import { User } from "./user.entity";
 import { CreateUserRequest } from "./validation/create-user.schema";
 import { hash } from "bcrypt";
 import { UserId } from "./validation/user-id.schema";
+import { UpdateUserRequest } from "./validation/update-user.schema";
 
 @Injectable()
 export class UsersService{
@@ -41,6 +42,45 @@ export class UsersService{
         const userCreated = await this.userRepository.save(user)
 
         return userCreated
+    }
+
+    async updateUser(updateUserReq: UpdateUserRequest & UserId){
+        const foundUser = await this.userRepository.findOne({where: {id: updateUserReq.id}})
+        if(foundUser === null)
+            throw new NotFoundException('User not found.')
+
+        let error : string[] = []
+        // Username unicity checking
+        if(updateUserReq.username && foundUser.username !== updateUserReq.username){
+            const checkUsername = await this.findByUsername(updateUserReq.username)
+            if(checkUsername !== null)
+                error.push('Choose another username.')
+            else
+                foundUser.username = updateUserReq.username
+        }
+
+        // Email unicity checking
+        if(updateUserReq.email && foundUser.email !== updateUserReq.email){
+            const checkEmail = await this.findByEmail(updateUserReq.email)
+            if(checkEmail !== null)
+                error.push('Use another email.')
+            else
+                foundUser.email = updateUserReq.email
+        }
+
+        // Negative wallet checking
+        if(updateUserReq.transactionAmount){
+            const newWallet = updateUserReq.transactionAmount + foundUser.wallet
+            if(newWallet < 0)
+                error.push("Wallet can't be negative")
+            else
+                foundUser.wallet = newWallet
+        }
+        if(error.length !== 0)
+            throw new BadRequestException(error)
+
+        const updatedUser = await this.userRepository.save(foundUser)
+        return updatedUser
     }
 
     async deleteUser(params: UserId){

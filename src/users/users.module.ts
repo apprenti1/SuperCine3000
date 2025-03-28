@@ -3,7 +3,7 @@ import { DatabaseModule } from "src/database/database.module";
 import { userProviders } from "./users.providers";
 import { UsersService } from "./users.service";
 import { UsersController } from "./users.controller";
-import { ExistingUserPipe, UniqueUserPipe } from "src/common/pipes/UserExistencePipe";
+import { ExistingUserPipe, UniqueUserPipe } from "./validation/pipes/UserExistencePipe";
 
 @Module({
     imports: [DatabaseModule],

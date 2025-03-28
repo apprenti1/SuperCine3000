@@ -14,6 +14,12 @@ export class UsersController{
         return this.usersService.findAll()
     }
 
+    @Get(':id')
+    @UsePipes(new JoiValidationPipe(userIdValidation), ExistingUserPipe)
+    getUser(@Param() params: UserId){
+        return this.usersService.findById(params)
+    }
+
     @Post()
     @UsePipes(new JoiValidationPipe(createUserValidation), UniqueUserPipe)
     register(@Body() createUserBody : CreateUserRequest){

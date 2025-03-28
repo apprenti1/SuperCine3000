@@ -17,8 +17,8 @@ export class UsersService{
         return this.userRepository.find()
     }
 
-    async findById(id: number) {
-        const user = this.userRepository.findOne({where: {id: id}})
+    async findById(params: UserId) {
+        const user = this.userRepository.findOne({where: {id: params.id}})
         return user
     }
 

@@ -1,5 +1,5 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { USER_REPOSITORY_PROVIDER } from "src/constants";
+import { USER_REPOSITORY_PROVIDER } from "src/common/constants";
 import { Repository } from "typeorm";
 import { User } from "./user.entity";
 import { CreateUserRequest } from "./validation/create-user.schema";

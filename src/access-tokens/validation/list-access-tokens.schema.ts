@@ -10,5 +10,7 @@ export interface ListAccessTokensParams{
 export const listAccessTokensValidation = Joi.object<ListAccessTokensParams & PaginationRequest>({
     ownerUsername: Joi.string().min(3),
     ownerEmail: Joi.string().email(),
-    ownerId: Joi.number().min(0)
+    ownerId: Joi.number().min(0),
+    page: Joi.number().min(1).default(1),
+    limit: Joi.number().min(1).max(100).default(10)
 })

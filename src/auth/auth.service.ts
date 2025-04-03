@@ -34,7 +34,11 @@ export class AuthService {
         return token
     }
 
-    logout() {}
+    logout() {
+        return 'wip'
+    }
 
-    refresh() {}
+    refresh() {
+        return 'wip'
+    }
 }

@@ -1,4 +1,4 @@
-import { Controller, Delete, HttpCode, HttpStatus, Post, UsePipes } from '@nestjs/common';
+import { Body, Controller, Delete, HttpCode, HttpStatus, Post, UsePipes } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginRequest, loginValidation } from './validation/login.schema';
 import { JoiValidationPipe } from 'src/common/pipes/JoiValidationPipe';
@@ -12,7 +12,7 @@ export class AuthController {
     @Post('login')
     @HttpCode(HttpStatus.OK)
     @UsePipes(new JoiValidationPipe(loginValidation))
-    login(userInfo: LoginRequest) {
+    login(@Body() userInfo: LoginRequest) {
         return this.authService.login(userInfo)
     }
 

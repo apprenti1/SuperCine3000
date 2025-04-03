@@ -22,27 +22,27 @@ export class AccessTokensService {
     async getTokens(queryParams: ListAccessTokensParams & PaginationRequest) {
         const query = this.accessTokensRepository.createQueryBuilder('token')
 
-        // Applying filters
+    // Applying filters
 
         if(queryParams.ownerId !== undefined){
-            const user = await this.usersService.findById({id: queryParams.ownerId})
-            if(user !== null)
-                query.orWhere('token.user = :user', {user: user.id})
+            query.orWhere('token.userId = :id', {id: queryParams.ownerId})
         }
 
+        // We do this check to avoid making the jointure twice
+        if(queryParams.ownerEmail !== undefined || queryParams.ownerUsername !== undefined){
+            query.leftJoin('token.user', 'user')
+        }
+
+        // But we still have to check for each so the app doesn't crash
         if(queryParams.ownerEmail !== undefined){
-            const user = await this.usersService.findByEmail(queryParams.ownerEmail)
-            if(user !== null)
-                query.orWhere('token.user = :user', {user: user.id})
+            query.orWhere('user.email = :email', {email: queryParams.ownerEmail})
         }
 
         if(queryParams.ownerUsername !== undefined){
-            const user = await this.usersService.findByUsername(queryParams.ownerUsername)
-            if(user !== null)
-                query.orWhere('token.user = :user', {user: user.id})
+            query.orWhere('user.username = :username', {username: queryParams.ownerUsername})
         }
 
-        // Applying pagination
+    // Applying pagination
 
         query.skip((queryParams.page - 1) * queryParams.limit)
         query.take(queryParams.limit)
@@ -68,7 +68,7 @@ export class AccessTokensService {
         return token
     }
 
-    async createToken(user: User) : Promise<AccessToken> {
+    async createToken(user: User) : Promise<AccessTokenReturn> {
         const payload : AccessTokenPayload = {
             sub: user.id,
             username: user.username,
@@ -83,7 +83,9 @@ export class AccessTokensService {
 
         const savedToken = await this.accessTokensRepository.save(token)
 
-        return savedToken
+        return {
+            access_token: savedToken.token
+        }
     }
 
     async deleteToken(id: number) {

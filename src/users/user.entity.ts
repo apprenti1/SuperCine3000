@@ -1,5 +1,6 @@
+import { AccessToken } from "src/access-tokens/access-token.entity";
 import { Roles } from "src/common/enums/roles.enum";
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class User {
@@ -27,13 +28,17 @@ export class User {
     @UpdateDateColumn({type: "timestamptz"})
     updatedAt: Date
 
+    @OneToMany(() => AccessToken, token => token.user)
+    accessTokens: AccessToken[]
+
     constructor(
         id: number,
         email: string,
         username: string,
         password: string,
         role: Roles,
-        wallet: number
+        wallet: number,
+        accessTokens: AccessToken[]
     ){
         this.id = id
         this.email = email
@@ -41,5 +46,6 @@ export class User {
         this.password = password
         this.role = role
         this.wallet = wallet
+        this.accessTokens = accessTokens
     }
 }

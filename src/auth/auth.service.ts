@@ -4,12 +4,13 @@ import { LoginRequest } from './validation/login.schema';
 import { User } from 'src/users/user.entity';
 import { compare, hash } from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { AccessTokensService } from 'src/access-tokens/access-tokens.service';
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly usersService: UsersService,
-        private readonly jwtService: JwtService
+        private readonly accessTokensService: AccessTokensService
     ) {}
 
     async login(userInfo: LoginRequest) {
@@ -28,16 +29,9 @@ export class AuthService {
             throw new BadRequestException('Wrong credentials.')
 
         // Token creation
-        const payload = {
-            sub: user.id,
-            username: user.username,
-            email: user.email,
-            role: user.role
-        }
+        const token = await this.accessTokensService.createToken(user)
 
-        return {
-            access_token: await this.jwtService.signAsync(payload)
-        }
+        return token
     }
 
     logout() {}

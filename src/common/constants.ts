@@ -9,7 +9,3 @@
 
     // Provides the database connection element (database/database.providers.ts)
     export const APPDATA_PROVIDER = 'DATA_SOURCE'
-
-
-/* JWT Secret */
-    export const JWT_SECRET = process.env.JWT_SECRET

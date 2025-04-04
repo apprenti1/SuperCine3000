@@ -98,11 +98,21 @@ export class AccessTokensService {
     }
 
     async deleteToken(id: number) {
-        const deleted_token = await this.accessTokensRepository.delete(id)
+        const deletedToken = await this.accessTokensRepository.delete(id)
 
-        if(deleted_token.affected === 0)
+        if(deletedToken.affected === 0)
             throw new NotFoundException('Token does not exist.')
 
-        return deleted_token
+        return deletedToken
+    }
+
+    async deleteTokenByToken(token: string) {
+        console.log(token)
+        const deletedToken = await this.accessTokensRepository.delete({token: token})
+
+        if(deletedToken.affected === 0) // This shouldn't be used since token has been verified
+            throw new NotFoundException('Token does not exist.')
+
+        return deletedToken
     }
 }

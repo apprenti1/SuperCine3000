@@ -5,6 +5,7 @@ import { User } from 'src/users/user.entity';
 import { compare, hash } from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { AccessTokensService } from 'src/access-tokens/access-tokens.service';
+import { Request } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -34,8 +35,12 @@ export class AuthService {
         return token
     }
 
-    logout() {
-        return 'wip'
+    async logout(req: Request) {
+        // We cast the token as string because we already checked its existence in the RolesGuard
+        const token = req['user'].token
+        const deletedToken = await this.accessTokensService.deleteTokenByToken(token)
+
+        return deletedToken
     }
 
     refresh() {

@@ -1,5 +1,5 @@
 import { User } from "src/users/user.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class AccessToken{
@@ -11,6 +11,9 @@ export class AccessToken{
 
     @ManyToOne(() => User, user => user.accessTokens)
     user: User
+    
+    @CreateDateColumn({type: "timestamptz"})
+    createdAt: Date
 
     constructor(
         id: number,

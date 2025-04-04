@@ -34,7 +34,7 @@ export class RolesGuard implements CanActivate{
 
             // Throw an error if the token is invalid or expired
             payload = await this.getTokenPayload(token)
-            req['user'] = payload
+            req['user'] = {...payload, token: token}
         } catch (error) {
             throw new UnauthorizedException('Invalid token.')
         }
@@ -43,6 +43,10 @@ export class RolesGuard implements CanActivate{
 
         // We get the roles and we check if it matches
         const allowedRoles : Roles[] = this.reflector.getAllAndMerge(SET_ROLES_KEY, [context.getHandler(), context.getClass()])
+
+        // If no roles are set, it means you just need to be logged in
+        if(allowedRoles.length === 0) return true
+
         const found = allowedRoles.find((role) => role === payload.role)
         if(found === undefined)
             throw new ForbiddenException('You are not allowed to access this.')

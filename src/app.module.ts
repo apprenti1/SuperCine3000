@@ -5,6 +5,9 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { AccessTokensModule } from './access-tokens/access-tokens.module';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './auth/roles.guard';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -14,6 +17,11 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot({ isGlobal: true })
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, JwtService, 
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard
+    }
+  ],
 })
 export class AppModule {}

@@ -1,0 +1,62 @@
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable, UnauthorizedException } from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { JwtService } from "@nestjs/jwt";
+import { Request } from "express";
+import { RequestTokenPayload } from "src/access-tokens/interfaces/access-token-payload.interface";
+import { IS_PUBLIC_KEY, SET_ROLES_KEY } from "src/common/constants";
+import { Roles } from "src/common/enums/roles.enum";
+
+@Injectable()
+export class RolesGuard implements CanActivate{
+    constructor(
+        private readonly jwtService: JwtService,
+        private reflector: Reflector
+    ) {}
+
+    async canActivate(context: ExecutionContext): Promise<boolean> {
+        //If the route is public we go
+        const isPublic : boolean | undefined = this.reflector.getAllAndOverride(IS_PUBLIC_KEY, [context.getHandler(), context.getClass()])
+        if(isPublic === true) return true
+
+        // We get the token from the request
+        const req : Request = context.switchToHttp().getRequest()
+        const token = this.extractTokenFromHeader(req)
+        if(token === undefined)
+            throw new UnauthorizedException('Authentication required.')
+
+        // Token validation
+        let payload : RequestTokenPayload
+        try {
+            payload = await this.getTokenPayload(token)
+            console.log(payload)
+            req['user'] = payload
+        } catch {
+            throw new UnauthorizedException('Invalid token.')
+        }
+
+        // TODO Vérifier les types
+
+        // We get the roles and we check if it matches
+        const allowedRoles : Roles[] = this.reflector.getAllAndMerge(SET_ROLES_KEY, [context.getHandler(), context.getClass()])
+        const found = allowedRoles.find((role) => role === payload.role)
+        if(found === undefined)
+            throw new ForbiddenException('You are not allowed to access this.')
+
+        return true
+    }
+
+    private extractTokenFromHeader(request: Request) : string | undefined {
+        const [type, token] = request.headers.authorization?.split(' ') ?? []
+        return type === 'Bearer' ? token : undefined
+    }
+
+    // WARNING Type de retour incertain (à vérifier)
+    private async getTokenPayload(token : string) : Promise<RequestTokenPayload> {
+        return await this.jwtService.verifyAsync(
+            token,
+            {
+                secret: process.env.JWT_SECRET
+            }
+        )
+    }
+}

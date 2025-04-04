@@ -68,6 +68,15 @@ export class AccessTokensService {
         return token
     }
 
+    async getTokenByToken(token: string) {
+        const tokenLine = await this.accessTokensRepository.findOne({where: {token: token}})
+
+        if(tokenLine === null)
+            throw new NotFoundException('Token does not exist.')
+
+        return tokenLine
+    }
+
     async createToken(user: User) : Promise<AccessTokenReturn> {
         const payload : AccessTokenPayload = {
             sub: user.id,

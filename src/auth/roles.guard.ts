@@ -2,6 +2,7 @@ import { CanActivate, ExecutionContext, ForbiddenException, Injectable, Unauthor
 import { Reflector } from "@nestjs/core";
 import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
+import { AccessTokensService } from "src/access-tokens/access-tokens.service";
 import { RequestTokenPayload } from "src/access-tokens/interfaces/access-token-payload.interface";
 import { IS_PUBLIC_KEY, SET_ROLES_KEY } from "src/common/constants";
 import { Roles } from "src/common/enums/roles.enum";
@@ -10,6 +11,7 @@ import { Roles } from "src/common/enums/roles.enum";
 export class RolesGuard implements CanActivate{
     constructor(
         private readonly jwtService: JwtService,
+        private readonly accessTokensService: AccessTokensService,
         private reflector: Reflector
     ) {}
 
@@ -27,10 +29,13 @@ export class RolesGuard implements CanActivate{
         // Token validation
         let payload : RequestTokenPayload
         try {
+            // Throw an error if the token is not in the database
+            await this.accessTokensService.getTokenByToken(token)
+
+            // Throw an error if the token is invalid or expired
             payload = await this.getTokenPayload(token)
-            console.log(payload)
             req['user'] = payload
-        } catch {
+        } catch (error) {
             throw new UnauthorizedException('Invalid token.')
         }
 

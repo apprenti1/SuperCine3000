@@ -1,26 +1,26 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { ACCESS_TOKENS_REPOSITORY_PROVIDER, USER_REPOSITORY_PROVIDER } from 'src/common/constants';
+import { TOKENS_REPOSITORY_PROVIDER } from 'src/common/constants';
 import { Repository } from 'typeorm';
-import { AccessToken } from './access-token.entity';
-import { ListAccessTokensParams } from './validation/list-access-tokens.schema';
+import { Token } from './token.entity';
+import { ListTokensParams } from './validation/list-tokens.schema';
 import { User } from 'src/users/user.entity';
-import { UsersService } from 'src/users/users.service';
 import { PaginationRequest } from 'src/common/validation/PaginationRequest';
 import { JwtService } from '@nestjs/jwt';
 import { AccessTokenPayload } from './interfaces/access-token-payload.interface';
 import { AccessTokenReturn } from './interfaces/access-token-return.interface';
+import { TokensType } from 'src/common/enums/tokens-type.enum';
+import { toMs } from 'ms-typescript';
 
 @Injectable()
-export class AccessTokensService {
+export class TokensService {
     constructor(
-        @Inject(ACCESS_TOKENS_REPOSITORY_PROVIDER)
-        private accessTokensRepository: Repository<AccessToken>,
-        private readonly usersService: UsersService,
+        @Inject(TOKENS_REPOSITORY_PROVIDER)
+        private tokensRepository: Repository<Token>,
         private readonly jwtService: JwtService
     ) {}
 
-    async getTokens(queryParams: ListAccessTokensParams & PaginationRequest) {
-        const query = this.accessTokensRepository.createQueryBuilder('token')
+    async getTokens(queryParams: ListTokensParams & PaginationRequest) {
+        const query = this.tokensRepository.createQueryBuilder('token')
 
     // Applying filters
 
@@ -60,7 +60,7 @@ export class AccessTokensService {
     }
 
     async getTokenById(id: number) {
-        const token = await this.accessTokensRepository.findOne({where: {id: id}})
+        const token = await this.tokensRepository.findOne({where: {id: id}})
 
         if(token === null)
             throw new NotFoundException('Token does not exist.')
@@ -69,7 +69,7 @@ export class AccessTokensService {
     }
 
     async getTokenByToken(token: string) {
-        const tokenLine = await this.accessTokensRepository.findOne({where: {token: token}})
+        const tokenLine = await this.tokensRepository.findOne({where: {token: token}})
 
         if(tokenLine === null)
             throw new NotFoundException('Token does not exist.')
@@ -85,12 +85,16 @@ export class AccessTokensService {
             role: user.role
         }
 
-        const token = this.accessTokensRepository.create({
-            token: await this.jwtService.signAsync(payload),
-            user: user
+        const jwtToken = await this.jwtService.signAsync(payload)
+
+        const token = this.tokensRepository.create({
+            token: jwtToken,
+            user: user,
+            type: TokensType.access,
+            expiresAt: new Date(Date.now() + toMs(process.env.JWT_EXPIRES_IN as string)) // cast 'cause it's needed
         })
 
-        const savedToken = await this.accessTokensRepository.save(token)
+        const savedToken = await this.tokensRepository.save(token)
 
         return {
             access_token: savedToken.token
@@ -98,7 +102,7 @@ export class AccessTokensService {
     }
 
     async deleteToken(id: number) {
-        const deletedToken = await this.accessTokensRepository.delete(id)
+        const deletedToken = await this.tokensRepository.delete(id)
 
         if(deletedToken.affected === 0)
             throw new NotFoundException('Token does not exist.')
@@ -108,7 +112,7 @@ export class AccessTokensService {
 
     async deleteTokenByToken(token: string) {
         console.log(token)
-        const deletedToken = await this.accessTokensRepository.delete({token: token})
+        const deletedToken = await this.tokensRepository.delete({token: token})
 
         if(deletedToken.affected === 0) // This shouldn't be used since token has been verified
             throw new NotFoundException('Token does not exist.')

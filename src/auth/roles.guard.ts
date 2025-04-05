@@ -2,8 +2,8 @@ import { CanActivate, ExecutionContext, ForbiddenException, Injectable, Unauthor
 import { Reflector } from "@nestjs/core";
 import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
-import { AccessTokensService } from "src/access-tokens/access-tokens.service";
-import { RequestTokenPayload } from "src/access-tokens/interfaces/access-token-payload.interface";
+import { TokensService } from "src/tokens/tokens.service";
+import { RequestTokenPayload } from "src/tokens/interfaces/access-token-payload.interface";
 import { IS_PUBLIC_KEY, SET_ROLES_KEY } from "src/common/constants";
 import { Roles } from "src/common/enums/roles.enum";
 
@@ -11,7 +11,7 @@ import { Roles } from "src/common/enums/roles.enum";
 export class RolesGuard implements CanActivate{
     constructor(
         private readonly jwtService: JwtService,
-        private readonly accessTokensService: AccessTokensService,
+        private readonly accessTokensService: TokensService,
         private reflector: Reflector
     ) {}
 

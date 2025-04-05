@@ -2,12 +2,12 @@ import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UsersModule } from 'src/users/users.module';
-import { AccessTokensModule } from 'src/access-tokens/access-tokens.module';
+import { TokensModule } from 'src/tokens/tokens.module';
 
 @Module({
   imports: [
     UsersModule,
-    AccessTokensModule
+    TokensModule
   ],
   controllers: [AuthController],
   providers: [AuthService]

@@ -4,14 +4,14 @@ import { LoginRequest } from './validation/login.schema';
 import { User } from 'src/users/user.entity';
 import { compare, hash } from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { AccessTokensService } from 'src/access-tokens/access-tokens.service';
+import { TokensService } from 'src/tokens/tokens.service';
 import { Request } from 'express';
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly usersService: UsersService,
-        private readonly accessTokensService: AccessTokensService
+        private readonly accessTokensService: TokensService
     ) {}
 
     async login(userInfo: LoginRequest) {

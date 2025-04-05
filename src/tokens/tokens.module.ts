@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { AccessTokensController } from './access-tokens.controller';
-import { AccessTokensService } from './access-tokens.service';
-import { accessTokensProviders } from './access-tokens.providers';
+import { TokensController } from './tokens.controller';
+import { TokensService } from './tokens.service';
+import { tokensProviders } from './tokens.providers';
 import { DatabaseModule } from 'src/database/database.module';
 import { UsersModule } from 'src/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
@@ -16,15 +16,17 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '360s' }
+        signOptions: {
+          expiresIn: configService.get<string>('JWT_EXPIRES_IN')
+        }
       })
     })
   ],
-  controllers: [AccessTokensController],
+  controllers: [TokensController],
   providers: [
-    AccessTokensService,
-    ...accessTokensProviders
+    TokensService,
+    ...tokensProviders
   ],
-  exports: [AccessTokensService]
+  exports: [TokensService]
 })
-export class AccessTokensModule {}
+export class TokensModule {}

@@ -1,9 +1,9 @@
 import * as Joi from "joi"
 
-export interface AccessTokenId{
+export interface TokenId{
     id: number
 }
 
-export const accessTokenIdValidation = Joi.object<AccessTokenId>({
+export const tokenIdValidation = Joi.object<TokenId>({
     id: Joi.number().min(0).required()
 }).options({abortEarly: false})

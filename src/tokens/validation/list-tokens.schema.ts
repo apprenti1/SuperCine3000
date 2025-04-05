@@ -1,4 +1,4 @@
-import * as Joi from "joi"
+import Joi from "joi"
 import { TokensType } from "src/common/enums/tokens-type.enum"
 import { PaginationRequest } from "src/common/validation/PaginationRequest"
 

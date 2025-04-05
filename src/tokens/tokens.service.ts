@@ -9,7 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import { AccessTokenPayload } from './interfaces/access-token-payload.interface';
 import { AccessTokenReturn } from './interfaces/access-token-return.interface';
 import { TokensType } from 'src/common/enums/tokens-type.enum';
-import { toMs } from 'ms-typescript';
+import ms from 'ms';
 
 @Injectable()
 export class TokensService {
@@ -85,13 +85,11 @@ export class TokensService {
             role: user.role
         }
 
-        const jwtToken = await this.jwtService.signAsync(payload)
-
         const token = this.tokensRepository.create({
-            token: jwtToken,
+            token: await this.jwtService.signAsync(payload),
             user: user,
             type: TokensType.access,
-            expiresAt: new Date(Date.now() + toMs(process.env.JWT_EXPIRES_IN as string)) // cast 'cause it's needed
+            expiresAt: new Date(Date.now() + ms('300s')) // cast 'cause it's needed
         })
 
         const savedToken = await this.tokensRepository.save(token)

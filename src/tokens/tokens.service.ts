@@ -8,7 +8,7 @@ import { PaginationRequest } from 'src/common/validation/PaginationRequest';
 import { JwtService } from '@nestjs/jwt';
 import { AccessTokenPayload, RequestAccessTokenPayload } from './interfaces/access-token-payload.interface';
 import { TokensType } from 'src/common/enums/tokens-type.enum';
-import ms from 'ms';
+import ms, { StringValue } from 'ms';
 import { RefreshTokenPayload, RequestRefreshTokenPayload } from './interfaces/refresh-token-payload.interface';
 
 @Injectable()
@@ -89,7 +89,7 @@ export class TokensService {
             token: await this.jwtService.signAsync(payload),
             user: user,
             type: TokensType.access,
-            expiresAt: new Date(Date.now() + ms('300s'))
+            expiresAt: new Date(Date.now() + ms(process.env.JWT_EXPIRES_IN as StringValue))
         })
 
         const savedToken = await this.tokensRepository.save(token)
@@ -102,11 +102,12 @@ export class TokensService {
             sub: user.id
         }
 
+        const expiresIn = '5 days'
         const token = this.tokensRepository.create({
-            token: await this.jwtService.signAsync(payload, {expiresIn: '5 days'}),
+            token: await this.jwtService.signAsync(payload, {expiresIn: expiresIn}),
             user: user,
             type: TokensType.refresh,
-            expiresAt: new Date(Date.now() + ms('5 days'))
+            expiresAt: new Date(Date.now() + ms(expiresIn))
         })
 
         const savedToken = await this.tokensRepository.save(token)

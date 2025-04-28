@@ -56,7 +56,6 @@ export class AuthService {
         if(type !== 'Bearer')
             throw new UnauthorizedException('Refresh token is invalid.')
 
-        console.log(refreshToken)
         let refreshTokenPayload : RequestRefreshTokenPayload
         try{
             // Throw an error if not found
@@ -64,8 +63,7 @@ export class AuthService {
 
             // Throw an error if invalid
             refreshTokenPayload = await this.tokensService.getTokenPayload(refreshToken)
-        } catch(e){
-            console.log(e)
+        } catch{
             throw new UnauthorizedException('Refresh token is invalid.')
         }
         

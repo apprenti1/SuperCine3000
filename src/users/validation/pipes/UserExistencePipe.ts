@@ -1,4 +1,4 @@
-import { ArgumentMetadata, BadRequestException, Inject, Injectable, NotFoundException, PipeTransform } from "@nestjs/common";
+import { ArgumentMetadata, BadRequestException, Injectable, NotFoundException, PipeTransform } from "@nestjs/common";
 import { UsersService } from "src/users/users.service";
 import { CreateUserRequest } from "src/users/validation/create-user.schema";
 import { UserId } from "src/users/validation/user-id.schema";
@@ -13,7 +13,7 @@ export class UserExistencePipe implements PipeTransform{
     async transform(value: CreateUserRequest & UserId, metadata: ArgumentMetadata) {
         // We compare to undefined so 0 is checked too
         if(value.id !== undefined){
-            const userById = await this.usersService.findById(value)
+            const userById = await this.usersService.findById(value.id)
             if(userById && this.checkUnicity)
                 throw new BadRequestException("Choose another username.")
 

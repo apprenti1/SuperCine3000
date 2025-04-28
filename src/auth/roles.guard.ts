@@ -3,7 +3,7 @@ import { Reflector } from "@nestjs/core";
 import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
 import { TokensService } from "src/tokens/tokens.service";
-import { RequestTokenPayload } from "src/tokens/interfaces/access-token-payload.interface";
+import { RequestAccessTokenPayload } from "src/tokens/interfaces/access-token-payload.interface";
 import { IS_PUBLIC_KEY, SET_ROLES_KEY } from "src/common/constants";
 import { Roles } from "src/common/enums/roles.enum";
 
@@ -11,7 +11,7 @@ import { Roles } from "src/common/enums/roles.enum";
 export class RolesGuard implements CanActivate{
     constructor(
         private readonly jwtService: JwtService,
-        private readonly accessTokensService: TokensService,
+        private readonly tokensService: TokensService,
         private reflector: Reflector
     ) {}
 
@@ -22,24 +22,22 @@ export class RolesGuard implements CanActivate{
 
         // We get the token from the request
         const req : Request = context.switchToHttp().getRequest()
-        const token = this.extractTokenFromHeader(req)
+        const token = this.extractAccessTokenFromHeader(req)
         if(token === undefined)
             throw new UnauthorizedException('Authentication required.')
 
         // Token validation
-        let payload : RequestTokenPayload
+        let payload : RequestAccessTokenPayload
         try {
             // Throw an error if the token is not in the database
-            await this.accessTokensService.getTokenByToken(token)
+            await this.tokensService.getTokenByToken(token)
 
             // Throw an error if the token is invalid or expired
-            payload = await this.getTokenPayload(token)
+            payload = await this.tokensService.getTokenPayload(token) as RequestAccessTokenPayload
             req['user'] = {...payload, token: token}
         } catch (error) {
             throw new UnauthorizedException('Invalid token.')
         }
-
-        // TODO Vérifier les types
 
         // We get the roles and we check if it matches
         const allowedRoles : Roles[] = this.reflector.getAllAndMerge(SET_ROLES_KEY, [context.getHandler(), context.getClass()])
@@ -54,18 +52,8 @@ export class RolesGuard implements CanActivate{
         return true
     }
 
-    private extractTokenFromHeader(request: Request) : string | undefined {
+    private extractAccessTokenFromHeader(request: Request) : string | undefined {
         const [type, token] = request.headers.authorization?.split(' ') ?? []
         return type === 'Bearer' ? token : undefined
-    }
-
-    // WARNING Type de retour incertain (à vérifier)
-    private async getTokenPayload(token : string) : Promise<RequestTokenPayload> {
-        return await this.jwtService.verifyAsync(
-            token,
-            {
-                secret: process.env.JWT_SECRET
-            }
-        )
     }
 }

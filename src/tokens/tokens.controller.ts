@@ -7,7 +7,7 @@ import { PaginationRequest } from 'src/common/validation/PaginationRequest';
 import { SetRoles } from 'src/auth/decorators/setRoles.decorator';
 import { Roles } from 'src/common/enums/roles.enum';
 
-@Controller('access-tokens')
+@Controller('tokens')
 export class TokensController {
     constructor(
         private readonly tokensService: TokensService

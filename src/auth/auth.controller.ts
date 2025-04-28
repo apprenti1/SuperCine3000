@@ -4,6 +4,7 @@ import { LoginRequest, loginValidation } from './validation/login.schema';
 import { JoiValidationPipe } from 'src/common/pipes/JoiValidationPipe';
 import { Public } from './decorators/public.decorator';
 import { Request } from 'express';
+import { RefreshRequest, refreshValidation } from './validation/refresh.schema';
 
 @Controller('auth')
 export class AuthController {
@@ -25,7 +26,10 @@ export class AuthController {
     }
 
     @Post('refresh')
-    refresh(){
-        return this.authService.refresh()
+    @HttpCode(HttpStatus.OK)
+    @UsePipes(new JoiValidationPipe(refreshValidation))
+    @Public()
+    refresh(@Body() refreshRequest : RefreshRequest){
+        return this.authService.refresh(refreshRequest)
     }
 }

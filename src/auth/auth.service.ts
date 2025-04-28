@@ -1,20 +1,23 @@
-import { BadRequestException, Injectable, UsePipes } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { LoginRequest } from './validation/login.schema';
 import { User } from 'src/users/user.entity';
-import { compare, hash } from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
+import { compare } from 'bcrypt';
 import { TokensService } from 'src/tokens/tokens.service';
 import { Request } from 'express';
+import { LoginReturn } from './interfaces/login-return.interface';
+import { RefreshRequest } from './validation/refresh.schema';
+import { RequestRefreshTokenPayload } from 'src/tokens/interfaces/refresh-token-payload.interface';
+import ms from 'ms';
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly usersService: UsersService,
-        private readonly accessTokensService: TokensService
+        private readonly tokensService: TokensService
     ) {}
 
-    async login(userInfo: LoginRequest) {
+    async login(userInfo: LoginRequest): Promise<LoginReturn> {
         let user : User | null = null
 
         if(userInfo.username !== undefined)
@@ -29,21 +32,57 @@ export class AuthService {
         if(!isValid)
             throw new BadRequestException('Wrong credentials.')
 
-        // Token creation
-        const token = await this.accessTokensService.createToken(user)
+        // Tokens creation
+        const accessToken = await this.tokensService.createAccessToken(user)
+        const refreshToken = await this.tokensService.createRefreshToken(user)
 
-        return token
+        const tokens : LoginReturn = {
+            access_token: accessToken,
+            refresh_token: refreshToken
+        }
+
+        return tokens
     }
 
     async logout(req: Request) {
-        // We cast the token as string because we already checked its existence in the RolesGuard
-        const token = req['user'].token
-        const deletedToken = await this.accessTokensService.deleteTokenByToken(token)
+        const userId = req['user'].sub
+        const deletedToken = await this.tokensService.deleteTokensByUserId(userId)
 
         return deletedToken
     }
 
-    refresh() {
-        return 'wip'
+    async refresh(refreshRequest : RefreshRequest) : Promise<LoginReturn>{
+        let [type, refreshToken] = refreshRequest.refresh_token.split(' ') ?? []
+        if(type !== 'Bearer')
+            throw new UnauthorizedException('Refresh token is invalid.')
+
+        console.log(refreshToken)
+        let refreshTokenPayload : RequestRefreshTokenPayload
+        try{
+            // Throw an error if not found
+            await this.tokensService.getTokenByToken(refreshToken)
+
+            // Throw an error if invalid
+            refreshTokenPayload = await this.tokensService.getTokenPayload(refreshToken)
+        } catch(e){
+            console.log(e)
+            throw new UnauthorizedException('Refresh token is invalid.')
+        }
+        
+        const user = await this.usersService.findById(refreshTokenPayload.sub)
+        if(user === null)
+            throw new NotFoundException('User not found')
+
+        const accessToken = await this.tokensService.createAccessToken(user)
+
+        //If the refresh token is about to expire, we refresh it too
+        if(refreshTokenPayload.exp >= Date.now() + ms('10min'))
+            refreshToken = await this.tokensService.createRefreshToken(user)
+
+
+        return {
+            access_token: accessToken,
+            refresh_token: refreshToken
+        }
     }
 }

@@ -9,7 +9,7 @@ export interface AccessTokenPayload{
 }
 
 // This interface represents the payload of the token the api RECEIVES
-export interface RequestTokenPayload{
+export interface RequestAccessTokenPayload{
     sub: number,
     username: string,
     email: string,

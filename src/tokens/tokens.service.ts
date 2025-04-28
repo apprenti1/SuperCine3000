@@ -6,10 +6,10 @@ import { ListTokensParams } from './validation/list-tokens.schema';
 import { User } from 'src/users/user.entity';
 import { PaginationRequest } from 'src/common/validation/PaginationRequest';
 import { JwtService } from '@nestjs/jwt';
-import { AccessTokenPayload } from './interfaces/access-token-payload.interface';
-import { AccessTokenReturn } from './interfaces/access-token-return.interface';
+import { AccessTokenPayload, RequestAccessTokenPayload } from './interfaces/access-token-payload.interface';
 import { TokensType } from 'src/common/enums/tokens-type.enum';
 import ms from 'ms';
+import { RefreshTokenPayload, RequestRefreshTokenPayload } from './interfaces/refresh-token-payload.interface';
 
 @Injectable()
 export class TokensService {
@@ -77,7 +77,7 @@ export class TokensService {
         return tokenLine
     }
 
-    async createToken(user: User) : Promise<AccessTokenReturn> {
+    async createAccessToken(user: User) : Promise<string> {
         const payload : AccessTokenPayload = {
             sub: user.id,
             username: user.username,
@@ -89,14 +89,29 @@ export class TokensService {
             token: await this.jwtService.signAsync(payload),
             user: user,
             type: TokensType.access,
-            expiresAt: new Date(Date.now() + ms('300s')) // cast 'cause it's needed
+            expiresAt: new Date(Date.now() + ms('300s'))
         })
 
         const savedToken = await this.tokensRepository.save(token)
 
-        return {
-            access_token: savedToken.token
+        return savedToken.token
+    }
+
+    async createRefreshToken(user: User) : Promise<string> {
+        const payload : RefreshTokenPayload = {
+            sub: user.id
         }
+
+        const token = this.tokensRepository.create({
+            token: await this.jwtService.signAsync(payload, {expiresIn: '5 days'}),
+            user: user,
+            type: TokensType.refresh,
+            expiresAt: new Date(Date.now() + ms('5 days'))
+        })
+
+        const savedToken = await this.tokensRepository.save(token)
+
+        return savedToken.token
     }
 
     async deleteToken(id: number) {
@@ -109,12 +124,31 @@ export class TokensService {
     }
 
     async deleteTokenByToken(token: string) {
-        console.log(token)
         const deletedToken = await this.tokensRepository.delete({token: token})
 
         if(deletedToken.affected === 0) // This shouldn't be used since token has been verified
             throw new NotFoundException('Token does not exist.')
 
         return deletedToken
+    }
+
+    async deleteTokensByUserId(userId: number){
+        const deletedTokens = await this.tokensRepository.delete({
+            user: {id: userId}
+        })
+
+        if(deletedTokens.affected === 0)
+            throw new NotFoundException('Token does not exist.')
+
+        return deletedTokens
+    }
+
+    async getTokenPayload(token : string) : Promise<RequestAccessTokenPayload | RequestRefreshTokenPayload>{
+        return await this.jwtService.verifyAsync(
+            token,
+            {
+                secret: process.env.JWT_SECRET
+            }
+        )
     }
 }

@@ -25,7 +25,7 @@ export class UsersController{
     @Get(':id')
     @UsePipes(new JoiValidationPipe(userIdValidation), ExistingUserPipe)
     getUser(@Param() params: UserId){
-        return this.usersService.findById(params)
+        return this.usersService.findById(params.id)
     }
 
     @Post()

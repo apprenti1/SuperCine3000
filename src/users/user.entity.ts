@@ -1,6 +1,7 @@
 import { Token } from "src/tokens/token.entity";
 import { Roles } from "src/common/enums/roles.enum";
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { MoneyTransaction } from "src/transactions/transaction.entity";
 
 @Entity()
 export class User {
@@ -31,6 +32,9 @@ export class User {
     @OneToMany(() => Token, token => token.user)
     tokens: Token[]
 
+    @OneToMany(() => MoneyTransaction, transac => transac.user)
+    transactions: MoneyTransaction[]
+
     constructor(
         id: number,
         email: string,
@@ -38,7 +42,8 @@ export class User {
         password: string,
         role: Roles,
         wallet: number,
-        tokens: Token[]
+        tokens: Token[],
+        transactions: MoneyTransaction[]
     ){
         this.id = id
         this.email = email
@@ -47,5 +52,6 @@ export class User {
         this.role = role
         this.wallet = wallet
         this.tokens = tokens
+        this.transactions = transactions
     }
 }

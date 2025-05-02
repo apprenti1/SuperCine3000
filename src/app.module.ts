@@ -13,6 +13,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/user.entity';
 import { Token } from './tokens/token.entity';
 import { Room } from './rooms/entities/room.entity';
+import { MoneyTransaction } from './transactions/transaction.entity';
 
 @Module({
   imports: [

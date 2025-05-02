@@ -8,11 +8,12 @@ import { UserId } from "./validation/user-id.schema";
 import { UpdateUserRequest } from "./validation/update-user.schema";
 import { ListUsersParam } from "./validation/list-users.schema";
 import { PaginationRequest } from "src/common/validation/PaginationRequest";
+import { InjectRepository } from "@nestjs/typeorm";
 
 @Injectable()
 export class UsersService{
     constructor(
-        @Inject(USER_REPOSITORY_PROVIDER)
+        @InjectRepository(User)
         private userRepository : Repository<User>
     ) {}
 

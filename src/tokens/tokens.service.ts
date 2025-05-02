@@ -1,5 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { TOKENS_REPOSITORY_PROVIDER } from 'src/common/constants';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Token } from './token.entity';
 import { ListTokensParams } from './validation/list-tokens.schema';
@@ -10,11 +9,12 @@ import { AccessTokenPayload, RequestAccessTokenPayload } from './interfaces/acce
 import { TokensType } from 'src/common/enums/tokens-type.enum';
 import ms, { StringValue } from 'ms';
 import { RefreshTokenPayload, RequestRefreshTokenPayload } from './interfaces/refresh-token-payload.interface';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class TokensService {
     constructor(
-        @Inject(TOKENS_REPOSITORY_PROVIDER)
+        @InjectRepository(Token)
         private tokensRepository: Repository<Token>,
         private readonly jwtService: JwtService
     ) {}

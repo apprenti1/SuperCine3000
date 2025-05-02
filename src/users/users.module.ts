@@ -12,6 +12,7 @@ import { ExistingUserPipe, UniqueUserPipe } from "./validation/pipes/UserExisten
         ...userProviders,
         UsersService,
         ExistingUserPipe, UniqueUserPipe
-    ]
+    ],
+    exports: [UsersService]
 })
 export class UsersModule {}

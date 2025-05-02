@@ -1,5 +1,5 @@
 import { Roles } from "src/common/enums/roles.enum";
-import * as Joi from "joi"
+import Joi from "joi"
 import { PaginationRequest } from "src/common/validation/PaginationRequest";
 
 export interface ListUsersParam{

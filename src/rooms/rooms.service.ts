@@ -48,6 +48,7 @@ export class RoomsService {
       order: { name: 'ASC' },
     });
 
+    // TODO uniformiser le retour avec les autres listing (créer une interface pour ça je pense)
     return {
       data: rooms,
       meta: {

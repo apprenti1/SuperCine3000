@@ -118,8 +118,12 @@ export class UsersService{
         if(error.length !== 0)
             throw new BadRequestException(error)
 
-        const updatedUser = await this.userRepository.save(foundUser)
+        const updatedUser = await this.saveUser(foundUser)
         return updatedUser
+    }
+
+    async saveUser(user : User) : Promise<User> {
+        return await this.userRepository.save(user)
     }
 
     async deleteUser(params: UserId){

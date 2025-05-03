@@ -11,8 +11,10 @@ export interface ListTransactionsParam{
     username?: string
 }
 
-export const listTransactionsValidation = Joi.object<ListTransactionsParam & PaginationRequest>({
-    maxAmount: Joi.number().min(0),
+export type ListTransactionsRequest = ListTransactionsParam & PaginationRequest
+
+export const listTransactionsValidation = Joi.object<ListTransactionsRequest>({
+    maxAmount: Joi.number().min(Joi.ref('minAmount')),
     minAmount: Joi.number().min(0),
     amount: Joi.number().min(0),
     type: Joi.string().valid(...Object.values(TransactionTypes) as string[]),

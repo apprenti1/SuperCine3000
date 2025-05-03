@@ -5,7 +5,7 @@ import { Roles } from "src/common/enums/roles.enum";
 import { Request } from "express";
 import { TransactionId, transactionIdValidation } from "./validation/transaction-id.schema";
 import { JoiValidationPipe } from "src/common/pipes/JoiValidationPipe";
-import { listTransactionsValidation } from "./validation/list-transactions.schema";
+import { ListTransactionsRequest, listTransactionsValidation } from "./validation/list-transactions.schema";
 import { CreateTransactionRequest, createTransactionValidation } from "./validation/create-transaction.schema";
 import { PatchTransactionRequest, patchTransactionValidation } from "./validation/patch-transaction.schema";
 
@@ -18,21 +18,25 @@ export class TransactionsController {
     @Get()
     @SetRoles(Roles.admin)
     @UsePipes(new JoiValidationPipe(listTransactionsValidation))
-    listTransactions(@Query() queryParams) {
+    listTransactions(@Query() queryParams : ListTransactionsRequest) {
         return this.transactionsService.listTransactions(queryParams)
     }
 
     // TODO: Voir s'il faut pas plutôt créer un module "/me"
     @Get('me')
-    listUserTransactions(@Query(new JoiValidationPipe(listTransactionsValidation)) queryParams, @Req() req : Request) {
-        return this.transactionsService.listUserTransactions(queryParams, req['user'].sub)
+    listUserTransactions(@Query(new JoiValidationPipe(listTransactionsValidation)) queryParams : ListTransactionsRequest, @Req() req : Request) {
+        // We use the filters to get current user's transactions
+        queryParams.userId = req['user'].sub
+        queryParams.username = req['user'].username
+
+        return this.transactionsService.listTransactions(queryParams)
     }
 
     @Post()
     @SetRoles(Roles.admin)
-    @UsePipes(new JoiValidationPipe(createTransactionValidation))
-    createTransaction(@Body() body: CreateTransactionRequest) {
-        return this.transactionsService.createTransaction(body)
+    @UsePipes()
+    createTransaction(@Body(new JoiValidationPipe(createTransactionValidation)) body: CreateTransactionRequest, @Req() req : Request) {
+        return this.transactionsService.createTransaction(body, req['user'].sub)
     }
 
     @Get(':id')

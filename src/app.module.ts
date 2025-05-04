@@ -29,7 +29,7 @@ import { Room } from './rooms/entities/room.entity';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       synchronize: process.env.SYNCHRONIZE === 'true',
-      entities: [`__dirname + '/../**/*.entity.{ts,js}'`]
+      entities: [User, Token, Room]
     })
   ],
   controllers: [AppController],

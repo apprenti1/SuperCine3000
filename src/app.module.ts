@@ -30,7 +30,7 @@ import { MoneyTransaction } from './transactions/transaction.entity';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       synchronize: process.env.SYNCHRONIZE === 'true',
-      entities: [User, Token, Room]
+      entities: [User, Token, Room, MoneyTransaction]
     })
   ],
   controllers: [AppController],

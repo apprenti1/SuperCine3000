@@ -7,6 +7,7 @@ import { RoomId, roomIdValidation } from "./validation/room-id.schema";
 import { UpdateRoomRequest, updateRoomValidation } from "./validation/update-room.schema";
 import { ListRoomsParam, listRoomsValidation } from "./validation/list-rooms.schema";
 import { PaginationRequest } from "src/common/validation/PaginationRequest";
+import { Public } from "src/auth/decorators/public.decorator";
 
 @Controller('rooms')
 export class RoomsController {
@@ -45,6 +46,7 @@ export class RoomsController {
     }
 
     @Post('seed')
+    @Public()
     seedRooms() {
         return this.roomsService.seedRooms();
     }

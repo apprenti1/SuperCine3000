@@ -14,6 +14,7 @@ import { User } from './users/user.entity';
 import { Token } from './tokens/token.entity';
 import { Room } from './rooms/entities/room.entity';
 import { MoneyTransaction } from './transactions/transaction.entity';
+import { TransactionsModule } from './transactions/transactions.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { MoneyTransaction } from './transactions/transaction.entity';
     AuthModule,
     TokensModule,
     RoomsModule,
+    TransactionsModule,
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',

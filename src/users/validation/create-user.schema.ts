@@ -1,9 +1,25 @@
+import { ApiProperty } from "@nestjs/swagger";
 import Joi from "joi";
 
-export interface CreateUserRequest {
-    username: string,
-    password: string,
+export class CreateUserRequest {
+    @ApiProperty({
+        example: 'michel',
+        required: true
+    })
+    username: string
+
+    @ApiProperty({
+        example: 'michel@super.com',
+        required: true
+    })
     email: string
+
+    @ApiProperty({
+        example: 'MyGood.Password#123',
+        required: true
+    })
+    password: string
+
 }
 
 export const createUserValidation = Joi.object<CreateUserRequest>({

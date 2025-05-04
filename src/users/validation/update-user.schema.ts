@@ -1,7 +1,17 @@
+import { ApiProperty } from "@nestjs/swagger";
 import Joi from "joi";
 
-export interface UpdateUserRequest {
+export class UpdateUserRequest {
+    @ApiProperty({
+        example: 'michel',
+        required: false
+    })
     username?: string
+
+    @ApiProperty({
+        example: 'michel@super.com',
+        required: false
+    })
     email?: string
 }
 

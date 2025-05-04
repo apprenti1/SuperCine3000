@@ -108,14 +108,6 @@ export class UsersService{
                 foundUser.email = updateUserReq.email
         }
 
-        // Negative wallet checking
-        if(updateUserReq.transactionAmount){
-            const newWallet = updateUserReq.transactionAmount + foundUser.wallet
-            if(newWallet < 0)
-                error.push("Wallet can't be negative")
-            else
-                foundUser.wallet = newWallet
-        }
         if(error.length !== 0)
             throw new BadRequestException(error)
 

@@ -9,6 +9,8 @@ import { ListTransactionsRequest } from "./validation/list-transactions.schema";
 import { User } from "src/users/user.entity";
 import { UsersService } from "src/users/users.service";
 import { TransactionTypes } from "src/common/enums/transactions-type.enum";
+import { Request } from "express";
+import { Roles } from "src/common/enums/roles.enum";
 
 @Injectable()
 export class TransactionsService {
@@ -60,12 +62,16 @@ export class TransactionsService {
         }
     }
 
-    async createTransaction(body : CreateTransactionRequest, currentUserId: number) : Promise<MoneyTransaction> {
-        let transactionAuthor : User | null
-        if(body.username)
-            transactionAuthor = await this.usersService.findByUsername(body.username)
-        else
-            transactionAuthor = await this.usersService.findById(body.userId ? body.userId : currentUserId)
+    async createTransaction(body : CreateTransactionRequest, req: Request) : Promise<MoneyTransaction> {
+        let transactionAuthor : User | null = null
+
+        if(req['user'].role === Roles.admin && (body.username || body.userId)){
+            if(body.username)
+                transactionAuthor = await this.usersService.findByUsername(body.username)
+            if(body.userId)
+                transactionAuthor = await this.usersService.findById(body.userId)
+        } else
+            transactionAuthor = await this.usersService.findById(req['user'].sub)
 
         if(!transactionAuthor)
             throw new NotFoundException('User not found.')
@@ -77,7 +83,6 @@ export class TransactionsService {
         transactionAuthor.wallet += body.type === TransactionTypes.deposit ? body.amount : -body.amount
         this.usersService.saveUser(transactionAuthor)
 
-        // TODO Pas sûr que ça marche ça
         let transaction = this.transactionsRepository.create({
             amount: body.amount,
             type: body.type,

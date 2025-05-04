@@ -33,10 +33,9 @@ export class TransactionsController {
     }
 
     @Post()
-    @SetRoles(Roles.admin)
     @UsePipes()
     createTransaction(@Body(new JoiValidationPipe(createTransactionValidation)) body: CreateTransactionRequest, @Req() req : Request) {
-        return this.transactionsService.createTransaction(body, req['user'].sub)
+        return this.transactionsService.createTransaction(body, req)
     }
 
     @Get(':id')

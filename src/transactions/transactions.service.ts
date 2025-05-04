@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { MoneyTransaction } from "./transaction.entity";
-import { Repository } from "typeorm"
+import { DeleteResult, Repository } from "typeorm"
 import { PatchTransactionRequest } from "./validation/patch-transaction.schema";
 import { TransactionId } from "./validation/transaction-id.schema";
 import { CreateTransactionRequest } from "./validation/create-transaction.schema";
@@ -15,7 +15,7 @@ export class TransactionsService {
     constructor(
         @InjectRepository(MoneyTransaction)
         private transactionsRepository : Repository<MoneyTransaction>,
-        private readonly usersSercice : UsersService
+        private readonly usersService : UsersService
     ) {}
 
     async listTransactions(queryParams : ListTransactionsRequest) {
@@ -63,9 +63,9 @@ export class TransactionsService {
     async createTransaction(body : CreateTransactionRequest, currentUserId: number) : Promise<MoneyTransaction> {
         let transactionAuthor : User | null
         if(body.username)
-            transactionAuthor = await this.usersSercice.findByUsername(body.username)
+            transactionAuthor = await this.usersService.findByUsername(body.username)
         else
-            transactionAuthor = await this.usersSercice.findById(body.userId ? body.userId : currentUserId)
+            transactionAuthor = await this.usersService.findById(body.userId ? body.userId : currentUserId)
 
         if(!transactionAuthor)
             throw new NotFoundException('User not found.')
@@ -75,7 +75,7 @@ export class TransactionsService {
 
         // Update the user's wallet
         transactionAuthor.wallet += body.type === TransactionTypes.deposit ? body.amount : -body.amount
-        this.usersSercice.saveUser(transactionAuthor)
+        this.usersService.saveUser(transactionAuthor)
 
         // TODO Pas sûr que ça marche ça
         const transaction = this.transactionsRepository.create({
@@ -86,7 +86,7 @@ export class TransactionsService {
         return transaction
     }
 
-    async getTransaction(params : TransactionId){
+    async getTransaction(params : TransactionId) : Promise<MoneyTransaction> {
         const transaction = await this.transactionsRepository.findOne({where: {id: params.id}})
         if(!transaction)
             throw new NotFoundException('Transaction not found')
@@ -94,7 +94,7 @@ export class TransactionsService {
         return transaction
     }
 
-    async deleteTransaction(params : TransactionId){
+    async deleteTransaction(params : TransactionId) : Promise<DeleteResult> {
         const deletedTransac = await this.transactionsRepository.delete(params.id)
         if(!deletedTransac.affected)
             throw new NotFoundException('Transaction not found')
@@ -102,7 +102,58 @@ export class TransactionsService {
         return deletedTransac
     }
 
-    async patchTransaction(params : TransactionId, body : PatchTransactionRequest){
-        return 'wip'
+    async patchTransaction(params : TransactionId, body : PatchTransactionRequest) : Promise<MoneyTransaction> {
+        let transaction = await this.transactionsRepository.findOne({where: {id: params.id}})
+        if(transaction === null)
+            throw new NotFoundException("Transaction not found.")
+
+        let transacAuthor = transaction.user
+
+        // If the transaction's author changes
+        if(body.userId !== undefined && body.userId !== transacAuthor.id){
+            // We get the new author
+            const newAuthor = await this.usersService.findById(body.userId)
+            if(newAuthor === null)
+                throw new NotFoundException('User not found.')
+
+            // First, we cancel the old transaction
+            if(transaction.type === TransactionTypes.withdrawal){
+                transacAuthor.wallet += transaction.amount
+                newAuthor.wallet -= transaction.amount
+            }else{
+                transacAuthor.wallet -= transaction.amount
+                newAuthor.wallet += transaction.amount
+            }
+            // Then, we save the change and change the author
+            transacAuthor = await this.usersService.saveUser(transacAuthor)
+            transacAuthor = newAuthor
+        }
+    
+        // If the transaction's amount changes
+        if(body.amount !== undefined && body.amount !== transaction.amount){
+            if(transaction.type === TransactionTypes.withdrawal)
+                transacAuthor.wallet += transaction.amount - body.amount
+            else
+                transacAuthor.wallet += body.amount - transaction.amount
+
+            transaction.amount = body.amount
+        }
+
+        // If the type changes
+        if(body.type !== undefined && body.type !== transaction.type){
+            if(transaction.type === TransactionTypes.withdrawal)
+                transacAuthor.wallet += transaction.amount * 2 // Refund + operation
+            else
+                transacAuthor.wallet -= transaction.amount * 2 // Correction + operation
+
+            transaction.type = body.type
+        }
+
+        transacAuthor = await this.usersService.saveUser(transacAuthor)
+
+        transaction.user = transacAuthor // Very important
+        transaction = await this.transactionsRepository.save(transaction)
+
+        return transaction
     }
 }

@@ -31,7 +31,7 @@ import { TransactionsModule } from './transactions/transactions.module';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      synchronize: process.env.SYNCHRONIZE === 'true',
+      synchronize: process.env.DB_SYNCHRONIZE === 'true',
       entities: [User, Token, Room, MoneyTransaction]
     })
   ],

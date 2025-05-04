@@ -13,4 +13,4 @@ export const createTransactionValidation = Joi.object<CreateTransactionRequest>(
     type: Joi.string().valid(...Object.values(TransactionTypes) as string[]).required(),
     username: Joi.string().min(3),
     userId: Joi.number().min(1)
-}).options({abortEarly: false})
+}).options({abortEarly: false}).without('userId', 'username')

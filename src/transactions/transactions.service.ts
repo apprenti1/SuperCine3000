@@ -78,16 +78,21 @@ export class TransactionsService {
         this.usersService.saveUser(transactionAuthor)
 
         // TODO Pas sûr que ça marche ça
-        const transaction = this.transactionsRepository.create({
-            ...body,
+        let transaction = this.transactionsRepository.create({
+            amount: body.amount,
+            type: body.type,
             user: transactionAuthor
         })
-        
+        transaction = await this.transactionsRepository.save(transaction)
+
         return transaction
     }
 
     async getTransaction(params : TransactionId) : Promise<MoneyTransaction> {
-        const transaction = await this.transactionsRepository.findOne({where: {id: params.id}})
+        const transaction = await this.transactionsRepository.findOne({
+            where: {id: params.id},
+            relations: ['user']
+        })
         if(!transaction)
             throw new NotFoundException('Transaction not found')
 
@@ -103,7 +108,7 @@ export class TransactionsService {
     }
 
     async patchTransaction(params : TransactionId, body : PatchTransactionRequest) : Promise<MoneyTransaction> {
-        let transaction = await this.transactionsRepository.findOne({where: {id: params.id}})
+        let transaction = await this.transactionsRepository.findOne({where: {id: params.id}, relations: ['user']})
         if(transaction === null)
             throw new NotFoundException("Transaction not found.")
 

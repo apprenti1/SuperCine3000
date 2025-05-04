@@ -50,4 +50,10 @@ export class UsersController{
     deleteUser(@Param() params: UserId){
         return this.usersService.deleteUser(params)
     }
+
+    @Post('seed')
+    @Public()
+    seedUsers(){
+        return this.usersService.seedUsers()
+    }
 }

@@ -9,6 +9,7 @@ import { UpdateUserRequest } from "./validation/update-user.schema";
 import { ListUsersParam } from "./validation/list-users.schema";
 import { PaginationRequest } from "src/common/validation/PaginationRequest";
 import { InjectRepository } from "@nestjs/typeorm";
+import { Roles } from "src/common/enums/roles.enum";
 
 @Injectable()
 export class UsersService{
@@ -130,5 +131,40 @@ export class UsersService{
         const deleted = await this.userRepository.delete(params.id)
 
         return deleted
+    }
+
+    async seedUsers() : Promise<string> {
+        const users : User[] = [
+            new User(
+                30000, 'admin@yopmail.com', 'admin', 'adminadmin', Roles.admin, 999, [], []
+            ),
+            new User(
+                30001, 'michel@yopmail.com', 'michel', 'michelmichel', Roles.customer, 30, [], []
+            ),
+            new User(
+                30002, 'germaine@yopmail.com', 'germaine', 'germainegermaine', Roles.customer, 300, [], []
+            ),
+            new User(
+                30003, 'alphonse@yopmail.com', 'alphonse', 'alphonsealphonse', Roles.customer, 50, [], []
+            ),
+            new User(
+                30004, 'jean.marc@yopmail.com', 'jean-marc', 'jean-marc92', Roles.customer, 64, [], []
+            ),
+            new User(
+                30005, 'remi@yopmail.com', 'remi', 'remiremiremi', Roles.customer, 2, [], []
+            ),
+        ]
+
+        let i = 0
+        for(const user of users){
+            const existing = await this.findByUsername(user.username)
+            if(existing === null){
+                user.password = await hash(user.password, parseInt(process.env.SALT ?? '10'))
+                await this.saveUser(user)
+                ++i
+            }
+        }
+
+        return i + ' users seeded.'
     }
 }

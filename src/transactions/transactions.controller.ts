@@ -45,6 +45,14 @@ export class TransactionsController {
         return this.transactionsService.getTransaction(params)
     }
 
+    @Get('me/:id')
+    getMyTransaction(
+        @Param(new JoiValidationPipe(transactionIdValidation)) params : TransactionId,
+        @Req() req : Request
+    ){
+        return this.transactionsService.getMyTransaction(params, req)
+    }
+
     @Delete(':id')
     @SetRoles(Roles.admin)
     @UsePipes(new JoiValidationPipe(transactionIdValidation))

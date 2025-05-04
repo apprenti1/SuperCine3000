@@ -104,6 +104,21 @@ export class TransactionsService {
         return transaction
     }
 
+    async getMyTransaction(params : TransactionId, req: Request) : Promise<MoneyTransaction> {
+        const transaction = await this.transactionsRepository.findOne({
+            where: {id: params.id},
+            relations: ['user']
+        })
+        if(!transaction)
+            throw new NotFoundException('Transaction not found')
+
+        // If the current user is not the author of the transaction
+        if(transaction.user.username !== req['user'].username)
+            throw new NotFoundException('Transaction not found')
+
+        return transaction
+    }
+
     async deleteTransaction(params : TransactionId) : Promise<DeleteResult> {
         const deletedTransac = await this.transactionsRepository.delete(params.id)
         if(!deletedTransac.affected)

@@ -11,6 +11,7 @@ import { UsersService } from "src/users/users.service";
 import { TransactionTypes } from "src/common/enums/transactions-type.enum";
 import { Request } from "express";
 import { Roles } from "src/common/enums/roles.enum";
+import { ListingReturn } from "src/common/interfaces/listing-return.interface";
 
 @Injectable()
 export class TransactionsService {
@@ -20,7 +21,7 @@ export class TransactionsService {
         private readonly usersService : UsersService
     ) {}
 
-    async listTransactions(queryParams : ListTransactionsRequest) {
+    async listTransactions(queryParams : ListTransactionsRequest) : Promise<ListingReturn<MoneyTransaction>> {
         const query = this.transactionsRepository.createQueryBuilder('transac')
 
         // Applying filters
@@ -55,10 +56,12 @@ export class TransactionsService {
 
         return {
             data: transactions,
-            page_size: queryParams.limit,
-            page: queryParams.page,
-            total_entities: total,
-            total_pages: totalPages
+            meta: {
+                limit: queryParams.limit,
+                page: queryParams.page,
+                total: total,
+                totalPages: totalPages
+            }
         }
     }
 

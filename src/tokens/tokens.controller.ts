@@ -6,6 +6,8 @@ import { ListTokensParams, listTokensValidation } from './validation/list-tokens
 import { PaginationRequest } from 'src/common/validation/PaginationRequest';
 import { SetRoles } from 'src/auth/decorators/setRoles.decorator';
 import { Roles } from 'src/common/enums/roles.enum';
+import { ListingReturn } from 'src/common/interfaces/listing-return.interface';
+import { Token } from './token.entity';
 
 @Controller('tokens')
 export class TokensController {
@@ -16,7 +18,7 @@ export class TokensController {
     @Get()
     @SetRoles(Roles.admin)
     @UsePipes(new JoiValidationPipe(listTokensValidation))
-    listTokens(@Query() queryParams: ListTokensParams & PaginationRequest) {
+    listTokens(@Query() queryParams: ListTokensParams & PaginationRequest) : Promise<ListingReturn<Token>> {
         return this.tokensService.getTokens(queryParams)
     }
 

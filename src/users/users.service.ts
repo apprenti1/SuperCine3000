@@ -10,6 +10,7 @@ import { ListUsersParam } from "./validation/list-users.schema";
 import { PaginationRequest } from "src/common/validation/PaginationRequest";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Roles } from "src/common/enums/roles.enum";
+import { ListingReturn } from "src/common/interfaces/listing-return.interface";
 
 @Injectable()
 export class UsersService{
@@ -18,7 +19,7 @@ export class UsersService{
         private userRepository : Repository<User>
     ) {}
 
-    async findAll(queryParams: ListUsersParam & PaginationRequest) {
+    async findAll(queryParams: ListUsersParam & PaginationRequest) : Promise<ListingReturn<User>> {
         const query = this.userRepository.createQueryBuilder('user')
 
         // Applying filters 
@@ -51,10 +52,12 @@ export class UsersService{
 
         return {
             data: users,
-            page_size: queryParams.limit,
-            page: queryParams.page,
-            total_entities: total,
-            total_pages: totalPages
+            meta: {
+                limit: queryParams.limit,
+                page: queryParams.page,
+                total: total,
+                totalPages: totalPages
+            }
         }
     }
 

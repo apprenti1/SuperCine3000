@@ -11,6 +11,8 @@ import { Public } from "src/auth/decorators/public.decorator";
 import { SetRoles } from "src/auth/decorators/setRoles.decorator";
 import { Roles } from "src/common/enums/roles.enum";
 import { Request } from "express";
+import { ListingReturn } from "src/common/interfaces/listing-return.interface";
+import { Room } from "./entities/room.entity";
 
 @Controller('rooms')
 export class RoomsController {
@@ -20,7 +22,7 @@ export class RoomsController {
     getRooms(
         @Query(new JoiValidationPipe(listRoomsValidation)) queryParams: ListRoomsParam & PaginationRequest,
         @Req() req : Request
-    ) {
+    ) : Promise<ListingReturn<Room>> {
         return this.roomsService.findAll(queryParams, req);
     }
 

@@ -10,6 +10,8 @@ import { PaginationRequest } from "src/common/validation/PaginationRequest";
 import { SetRoles } from "src/auth/decorators/setRoles.decorator";
 import { Roles } from "src/common/enums/roles.enum";
 import { Public } from "src/auth/decorators/public.decorator";
+import { ListingReturn } from "src/common/interfaces/listing-return.interface";
+import { User } from "./user.entity";
 
 @Controller('users')
 export class UsersController{
@@ -18,7 +20,7 @@ export class UsersController{
     @Get()
     @UsePipes(new JoiValidationPipe(listUsersValidation))
     @SetRoles(Roles.admin)
-    getUsers(@Query() queryParams: ListUsersParam & PaginationRequest){
+    getUsers(@Query() queryParams: ListUsersParam & PaginationRequest) : Promise<ListingReturn<User>> {
         return this.usersService.findAll(queryParams)
     }
 

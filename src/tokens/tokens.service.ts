@@ -10,6 +10,7 @@ import { TokensType } from 'src/common/enums/tokens-type.enum';
 import ms, { StringValue } from 'ms';
 import { RefreshTokenPayload, RequestRefreshTokenPayload } from './interfaces/refresh-token-payload.interface';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ListingReturn } from 'src/common/interfaces/listing-return.interface';
 
 @Injectable()
 export class TokensService {
@@ -19,7 +20,7 @@ export class TokensService {
         private readonly jwtService: JwtService
     ) {}
 
-    async getTokens(queryParams: ListTokensParams & PaginationRequest) {
+    async getTokens(queryParams: ListTokensParams & PaginationRequest) : Promise<ListingReturn<Token>> {
         const query = this.tokensRepository.createQueryBuilder('token')
 
     // Applying filters
@@ -52,10 +53,12 @@ export class TokensService {
 
         return {
             data: tokens,
-            page_size: queryParams.limit,
-            page: queryParams.page,
-            total_entities: total,
-            total_pages: totalPages
+            meta: {
+                limit: queryParams.limit,
+                page: queryParams.page,
+                total: total,
+                totalPages: totalPages
+            }
         }
     }
 

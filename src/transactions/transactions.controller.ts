@@ -8,6 +8,8 @@ import { JoiValidationPipe } from "src/common/pipes/JoiValidationPipe";
 import { ListTransactionsRequest, listTransactionsValidation } from "./validation/list-transactions.schema";
 import { CreateTransactionRequest, createTransactionValidation } from "./validation/create-transaction.schema";
 import { PatchTransactionRequest, patchTransactionValidation } from "./validation/patch-transaction.schema";
+import { ListingReturn } from "src/common/interfaces/listing-return.interface";
+import { MoneyTransaction } from "./transaction.entity";
 
 @Controller('transactions')
 export class TransactionsController {
@@ -18,7 +20,7 @@ export class TransactionsController {
     @Get()
     @SetRoles(Roles.admin)
     @UsePipes(new JoiValidationPipe(listTransactionsValidation))
-    listTransactions(@Query() queryParams : ListTransactionsRequest) {
+    listTransactions(@Query() queryParams : ListTransactionsRequest) : Promise<ListingReturn<MoneyTransaction>> {
         return this.transactionsService.listTransactions(queryParams)
     }
 

@@ -9,6 +9,7 @@ import { ListRoomsParam } from './validation/list-rooms.schema';
 import { PaginationRequest } from 'src/common/validation/PaginationRequest';
 import { Request } from 'express';
 import { Roles } from 'src/common/enums/roles.enum';
+import { ListingReturn } from 'src/common/interfaces/listing-return.interface';
 
 @Injectable()
 export class RoomsService {
@@ -17,7 +18,7 @@ export class RoomsService {
     private roomsRepository: Repository<Room>,
   ) {}
 
-  async findAll(params: ListRoomsParam & PaginationRequest, req : Request) {
+  async findAll(params: ListRoomsParam & PaginationRequest, req : Request) : Promise<ListingReturn<Room>> {
     // If the user isnt an admin they can't see rooms in maintenance
     if(req['user'].role === Roles.customer) params.maintenance = false
 
@@ -56,18 +57,17 @@ export class RoomsService {
       skip,
       take: limit,
       order: { name: 'ASC' },
-    });
+    })
 
-    // TODO uniformiser le retour avec les autres listing (créer une interface pour ça je pense)
     return {
       data: rooms,
       meta: {
         total,
         page,
         limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
+        totalPages: Math.ceil(total / limit)
+      }
+    }
   }
 
   async findById(params: RoomId, req : Request) {

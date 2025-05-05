@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Screening } from 'src/screenings/screening.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('rooms')
 export class Room {
@@ -26,6 +27,9 @@ export class Room {
   @Column({default:false})
   maintenance: boolean
 
+  @OneToMany(() => Screening, screening => screening.room)
+  screenings: Screening[]
+
   @Column({ default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
@@ -39,6 +43,7 @@ export class Room {
     images: string[],
     type: string,
     capacity: number,
+    screenings: Screening[],
     handicapAccess: boolean = false,
     maintenance: boolean = false
   ) {
@@ -50,5 +55,6 @@ export class Room {
     this.capacity = capacity
     this.handicapAccess = handicapAccess
     this.maintenance = maintenance
+    this.screenings = screenings
   }
 }

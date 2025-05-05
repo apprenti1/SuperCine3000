@@ -1,9 +1,28 @@
+import { ApiProperty } from "@nestjs/swagger";
 import Joi from "joi";
 import { TransactionTypes } from "src/common/enums/transactions-type.enum";
 
-export interface PatchTransactionRequest{
-    amount?: number,
-    type?: TransactionTypes,
+export class PatchTransactionRequest{
+    @ApiProperty({
+        example: 51,
+        minimum: 0,
+        required: false
+    })
+    amount?: number
+
+    @ApiProperty({
+        example: TransactionTypes.withdrawal,
+        required: false,
+        description: "Valeurs possibles : 'withdrawal', 'deposit'"
+    })
+    type?: TransactionTypes
+    
+    @ApiProperty({
+        example: 5,
+        required: false,
+        minimum: 1,
+        description: "ID de l'auteur de la transaction. Ne coexiste pas avec 'username'."
+    })
     userId?: number
 }
 

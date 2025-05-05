@@ -21,10 +21,12 @@ export class TokensController {
 
     @Get()
     @ApiOperation({summary: "Liste tous les tokens enregistrés."})
-    @ApiQuery({name: "ownerUsername", description: "Filtre les tokens selon le nom de leur propriétaire.", example: "michel", type: string})
-    @ApiQuery({name: "ownerEmail", description: "Filtre les tokens selon l'email de leur propriétaire.", example: "michel@toto.com", type: string})
-    @ApiQuery({name: "ownerId", description: "Filtre les tokens selon l'ID de leur propriétaire.", minimum: 1, example: 3, type: number})
-    @ApiQuery({name: "type", description: "Filtre les tokens selon leur type. Valeurs possibles : access, refresh", example: TokensType.access, type: string})
+    @ApiQuery({name: "ownerUsername", description: "Filtre les tokens selon le nom de leur propriétaire.", example: "michel", type: string, required: false})
+    @ApiQuery({name: "ownerEmail", description: "Filtre les tokens selon l'email de leur propriétaire.", example: "michel@toto.com", type: string, required: false})
+    @ApiQuery({name: "ownerId", description: "Filtre les tokens selon l'ID de leur propriétaire.", minimum: 1, example: 3, type: number, required: false})
+    @ApiQuery({name: "type", description: "Filtre les tokens selon leur type. Valeurs possibles : access, refresh", example: TokensType.access, type: string, required: false})
+    @ApiQuery({name: 'page', required: false, type: number, description: "Définit le numéro de la page à afficher.", minimum: 1})
+    @ApiQuery({name: 'limit', required: false, type: number, description: "Définit le nombre d'utilisateurs par page.", minimum: 1})
     @SetRoles(Roles.admin)
     @UsePipes(new JoiValidationPipe(listTokensValidation))
     listTokens(@Query() queryParams: ListTokensParams & PaginationRequest) : Promise<ListingReturn<Token>> {

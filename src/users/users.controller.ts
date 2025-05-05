@@ -31,8 +31,8 @@ export class UsersController{
     @ApiQuery({name: 'walletMin', required: false, type: number, description: "Présente ceux avec une quantité d'argent supérieure à celle donnée."})
     @ApiQuery({name: 'wallet', required: false, type: number, description: "Présente ceux ayant la quantité d'argent donnée exactement."})
     @ApiQuery({name: 'role', required: false, type: string, description: "Présente ceux ayant le rôle donné. Valeurs possibles : customer ou admin."})
-    @ApiQuery({name: 'page', required: false, type: number, description: "Définit le numéro de la page à afficher."})
-    @ApiQuery({name: 'limit', required: false, type: number, description: "Définit le nombre d'utilisateurs par page."})
+    @ApiQuery({name: 'page', required: false, type: number, description: "Définit le numéro de la page à afficher.", minimum: 1})
+    @ApiQuery({name: 'limit', required: false, type: number, description: "Définit le nombre d'utilisateurs par page.", minimum: 1})
     getUsers(@Query() queryParams: ListUsersParam & PaginationRequest) : Promise<ListingReturn<User>> {
         return this.usersService.findAll(queryParams)
     }

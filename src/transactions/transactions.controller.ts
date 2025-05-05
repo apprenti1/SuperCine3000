@@ -43,6 +43,8 @@ export class TransactionsController {
     @ApiQuery({name: "maxAmount", description: "Retire les transactions dont le montant est supérieur à celui donné.", example: 99, minimum: 0, type: number, required: false})
     @ApiQuery({name: "minAmount", description: "Retire les transactions dont le montant est inférieur à celui donné.", example: 14, minimum: 0, type: number, required: false})
     @ApiQuery({name: "amount", description: "Filtre les transactions par leur montant.", example: 25, minimum: 0, type: number, required: false})
+    @ApiQuery({name: 'page', required: false, type: number, description: "Définit le numéro de la page à afficher.", minimum: 1})
+    @ApiQuery({name: 'limit', required: false, type: number, description: "Définit le nombre d'utilisateurs par page.", minimum: 1})
     listUserTransactions(@Query(new JoiValidationPipe(listTransactionsValidation)) queryParams : ListTransactionsRequest, @Req() req : Request) {
         // We use the filters to get current user's transactions
         queryParams.userId = req['user'].sub

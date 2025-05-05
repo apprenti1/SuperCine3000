@@ -20,6 +20,6 @@ export const listTransactionsValidation = Joi.object<ListTransactionsRequest>({
     type: Joi.string().valid(...Object.values(TransactionTypes) as string[]),
     username: Joi.string().min(3),
     userId: Joi.number().min(1),
-    page: Joi.number().min(1).default(1),
-    limit: Joi.number().min(1).max(100).default(10)
+    page: Joi.number().integer().min(1).default(1),
+    limit: Joi.number().integer().min(1).max(100).default(10)
 }).options({abortEarly: false})

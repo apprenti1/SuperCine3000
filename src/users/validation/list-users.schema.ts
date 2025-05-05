@@ -18,6 +18,6 @@ export const listUsersValidation = Joi.object<ListUsersParam & PaginationRequest
     walletMin: Joi.number().min(0),
     wallet: Joi.number().min(0),
     role: Joi.string().valid(...Object.values(Roles) as string[]),
-    page: Joi.number().min(1).default(1),
-    limit: Joi.number().min(1).max(100).default(10)
+    page: Joi.number().integer().min(1).default(1),
+    limit: Joi.number().integer().min(1).max(100).default(10)
 }).options({abortEarly: false})

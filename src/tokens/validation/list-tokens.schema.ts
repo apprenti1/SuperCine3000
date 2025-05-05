@@ -14,6 +14,6 @@ export const listTokensValidation = Joi.object<ListTokensParams & PaginationRequ
     ownerEmail: Joi.string().email(),
     ownerId: Joi.number().min(0),
     type: Joi.string().valid(...Object.values(TokensType) as string[]),
-    page: Joi.number().min(1).default(1),
-    limit: Joi.number().min(1).max(100).default(10)
+    page: Joi.number().integer().min(1).default(1),
+    limit: Joi.number().integer().min(1).max(100).default(10)
 }).options({abortEarly: false})

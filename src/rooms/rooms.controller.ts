@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UsePipes } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UsePipes } from "@nestjs/common";
 import { RoomsService } from "./rooms.service";
 import { JoiValidationPipe } from "src/common/pipes/JoiValidationPipe";
 import { CreateRoomRequest, createRoomValidation } from "./validation/create-room.schema";
@@ -8,30 +8,39 @@ import { UpdateRoomRequest, updateRoomValidation } from "./validation/update-roo
 import { ListRoomsParam, listRoomsValidation } from "./validation/list-rooms.schema";
 import { PaginationRequest } from "src/common/validation/PaginationRequest";
 import { Public } from "src/auth/decorators/public.decorator";
+import { SetRoles } from "src/auth/decorators/setRoles.decorator";
+import { Roles } from "src/common/enums/roles.enum";
+import { Request } from "express";
 
 @Controller('rooms')
 export class RoomsController {
     constructor(private readonly roomsService: RoomsService) {}
 
     @Get()
-    @UsePipes(new JoiValidationPipe(listRoomsValidation))
-    getRooms(@Query() queryParams: ListRoomsParam & PaginationRequest) {
-        return this.roomsService.findAll(queryParams);
+    getRooms(
+        @Query(new JoiValidationPipe(listRoomsValidation)) queryParams: ListRoomsParam & PaginationRequest,
+        @Req() req : Request
+    ) {
+        return this.roomsService.findAll(queryParams, req);
     }
 
     @Get(':id')
-    @UsePipes(new JoiValidationPipe(roomIdValidation), ExistingRoomPipe)
-    getRoom(@Param() params: RoomId) {
-        return this.roomsService.findById(params);
+    getRoom(
+        @Param(new JoiValidationPipe(roomIdValidation), ExistingRoomPipe) params: RoomId,
+        @Req() req : Request
+    ) {
+        return this.roomsService.findById(params, req);
     }
 
     @Post()
+    @SetRoles(Roles.admin)
     @UsePipes(new JoiValidationPipe(createRoomValidation), UniqueRoomPipe)
     createRoom(@Body() reqBody: CreateRoomRequest) {
         return this.roomsService.createRoom(reqBody);
     }
 
     @Patch(':id')
+    @SetRoles(Roles.admin)
     updateRoom(
         @Param(new JoiValidationPipe(roomIdValidation), ExistingRoomPipe) params: RoomId,
         @Body(new JoiValidationPipe(updateRoomValidation)) reqBody: UpdateRoomRequest
@@ -40,6 +49,7 @@ export class RoomsController {
     }
 
     @Delete(':id')
+    @SetRoles(Roles.admin)
     @UsePipes(new JoiValidationPipe(roomIdValidation), ExistingRoomPipe)
     deleteRoom(@Param() params: RoomId) {
         return this.roomsService.deleteRoom(params);

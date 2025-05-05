@@ -7,6 +7,8 @@ import { UpdateRoomRequest } from './validation/update-room.schema';
 import { RoomId } from './validation/room-id.schema';
 import { ListRoomsParam } from './validation/list-rooms.schema';
 import { PaginationRequest } from 'src/common/validation/PaginationRequest';
+import { Request } from 'express';
+import { Roles } from 'src/common/enums/roles.enum';
 
 @Injectable()
 export class RoomsService {
@@ -15,9 +17,13 @@ export class RoomsService {
     private roomsRepository: Repository<Room>,
   ) {}
 
-  async findAll(params: ListRoomsParam & PaginationRequest) {
-    const { page = 1, limit = 10, name, type, minCapacity, maxCapacity, handicapAccess } = params;
+  async findAll(params: ListRoomsParam & PaginationRequest, req : Request) {
+    // If the user isnt an admin they can't see rooms in maintenance
+    if(req['user'].role === Roles.customer) params.maintenance = false
+
+    const { page = 1, limit = 10, name, type, minCapacity, maxCapacity, handicapAccess, maintenance } = params;
     const skip = (page - 1) * limit;
+
 
     const where: FindOptionsWhere<Room> = {};
 
@@ -41,6 +47,10 @@ export class RoomsService {
       where.handicapAccess = handicapAccess;
     }
 
+    if (maintenance !== undefined) {
+      where.maintenance = maintenance;
+    }
+
     const [rooms, total] = await this.roomsRepository.findAndCount({
       where,
       skip,
@@ -60,12 +70,18 @@ export class RoomsService {
     };
   }
 
-  async findById(params: RoomId) {
-    const room = await this.roomsRepository.findOneBy({ id: params.id });
+  async findById(params: RoomId, req : Request) {
+    const room = await this.roomsRepository.findOneBy(
+      req['user'].role === Roles.customer ?
+      { id: params.id , maintenance: false}
+      :
+      { id: params.id }
+    )
+
     if (!room) {
-      throw new NotFoundException(`Room with ID ${params.id} not found`);
+      throw new NotFoundException(`Room with ID ${params.id} not found`)
     }
-    return room;
+    return room
   }
 
   async createRoom(data: CreateRoomRequest) {
@@ -84,11 +100,11 @@ export class RoomsService {
     if (!room) {
       throw new NotFoundException(`Room with ID ${params.id} not found`); 
     }
-    return await  this.roomsRepository.softDelete({ id: room.id });
+    return await  this.roomsRepository.delete(room.id);
   }
 
   async seedRooms() {
-    const rooms = [
+    const rooms : CreateRoomRequest[] = [
       {
         name: 'Grand Écran',
         description: 'Notre plus grande salle avec écran IMAX et son Dolby Atmos',

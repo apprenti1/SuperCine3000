@@ -12,6 +12,8 @@ import { JoiValidationPipe } from "src/common/pipes/JoiValidationPipe";
 import { SetRoles } from "src/auth/decorators/setRoles.decorator";
 import { Roles } from "src/common/enums/roles.enum";
 import { Public } from "src/auth/decorators/public.decorator";
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery } from "@nestjs/swagger";
+import { number, string } from "joi";
 
 @Controller('movies')
 export class MoviesController {
@@ -20,18 +22,33 @@ export class MoviesController {
     ) {}
 
     @Get()
+    @ApiBearerAuth()
+    @ApiOperation({summary: "Liste tous les films enregistrés en appliquant les filtres donnés en paramètre."})
+    @ApiQuery({name: "title", description: "Filtre les films selon leur titre.", example: "Interstellar", type: string, required: false})
+    @ApiQuery({name: "director", description: "Filtre les films selon leur réalisateur", example: "Ridley Scott", type: string, required: false})
+    @ApiQuery({name: "genre", description: "Filtre les films selon leur genre.", example: "Action", type: string, required: false})
+    @ApiQuery({name: "minDuration", description: "Retire du retour les films de durée inférieure à celle donnée.", example: "1h55m", type: string, required: false})
+    @ApiQuery({name: "maxDuration", description: "Retire du retour les films de durée supérieure à celle donnée.", example: "2h", type: string, required: false})
+    @ApiQuery({name: "duration", description: "Filtre les films selon leur durée.", example: "3h01", type: string, required: false})
+    @ApiQuery({name: 'page', required: false, type: number, description: "Définit le numéro de la page à afficher.", minimum: 1})
+    @ApiQuery({name: 'limit', required: false, type: number, description: "Définit le nombre de films par page.", minimum: 1})
     @UsePipes(new JoiValidationPipe(listMoviesParamsValidation))
     listMovies(@Query() queryParams : ListMoviesParams & PaginationRequest) : Promise<ListingReturn<Movie>> {
         return this.moviesService.listMovies(queryParams)
     }
 
     @Get(':id')
+    @ApiBearerAuth()
+    @ApiOperation({summary: "Présente le film d'ID donné."})
+    @ApiParam({name: 'id', description: "ID du film à présenter.", example: 1, type: number})
     @UsePipes(new JoiValidationPipe(movieIdValidation))
     getMovie(@Param() params: MovieId) : Promise<Movie> {
         return this.moviesService.getMovie(params)
     }
 
     @Post()
+    @ApiBearerAuth()
+    @ApiOperation({summary: "Enregistre un film avec les informations données."})
     @SetRoles(Roles.admin)
     @UsePipes(new JoiValidationPipe(createMovieValidation))
     addMovie(@Body() body: CreateMovieRequest) : Promise<Movie> {
@@ -39,6 +56,9 @@ export class MoviesController {
     }
 
     @Patch(':id')
+    @ApiBearerAuth()
+    @ApiOperation({summary: "Modifie le film d'ID donné avec les informations passées dans le body."})
+    @ApiParam({name: 'id', description: "ID du film à modifier.", example: 1, type: number})
     @SetRoles(Roles.admin)
     patchMovie(
         @Param(new JoiValidationPipe(movieIdValidation)) params: MovieId,
@@ -48,6 +68,9 @@ export class MoviesController {
     }
 
     @Delete(':id')
+    @ApiBearerAuth()
+    @ApiOperation({summary: "Supprime le film d'ID donné."})
+    @ApiParam({name: 'id', description: "ID du film à supprimer.", example: 1, type: number})
     @SetRoles(Roles.admin)
     @UsePipes(new JoiValidationPipe(movieIdValidation))
     deleteMovie(@Param() params: MovieId) : Promise<DeleteResult> {
@@ -55,6 +78,7 @@ export class MoviesController {
     }
 
     @Post('seed')
+    @ApiOperation({summary: "Ajoute une cinquantaine de films à la base de données."})
     @Public()
     seed() : Promise<string> {
         return this.moviesService.seed()

@@ -15,6 +15,8 @@ import { Token } from './tokens/token.entity';
 import { Room } from './rooms/entities/room.entity';
 import { MoneyTransaction } from './transactions/transaction.entity';
 import { TransactionsModule } from './transactions/transactions.module';
+import { Movie } from './movies/movie.entity';
+import { MoviesModule } from './movies/movies.module';
 
 @Module({
   imports: [
@@ -23,6 +25,7 @@ import { TransactionsModule } from './transactions/transactions.module';
     TokensModule,
     RoomsModule,
     TransactionsModule,
+    MoviesModule,
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -32,7 +35,7 @@ import { TransactionsModule } from './transactions/transactions.module';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       synchronize: process.env.DB_SYNCHRONIZE === 'true',
-      entities: [User, Token, Room, MoneyTransaction]
+      entities: [User, Token, Room, MoneyTransaction, Movie]
     })
   ],
   controllers: [AppController],

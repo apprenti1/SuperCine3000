@@ -17,6 +17,8 @@ import { User } from "./user.entity";
 
 @ApiTags('Users')
 @ApiBearerAuth()
+@ApiTags('Users')
+@ApiBearerAuth()
 @Controller('users')
 export class UsersController{
     constructor(private readonly usersService: UsersService) {}
@@ -41,6 +43,8 @@ export class UsersController{
     @UsePipes(new JoiValidationPipe(userIdValidation), ExistingUserPipe)
     @ApiOperation({summary: "Présente un utilisateur donné."})
     @ApiParam({name: 'id', required: true, description: "ID de l'utilisateur à récupérer.", example: 1,type: number})
+    @ApiOperation({summary: "Présente un utilisateur donné."})
+    @ApiParam({name: 'id', required: true, description: "ID de l'utilisateur à récupérer.", example: 1,type: number})
     getUser(@Param() params: UserId){
         return this.usersService.findById(params.id)
     }
@@ -49,12 +53,15 @@ export class UsersController{
     @UsePipes(new JoiValidationPipe(createUserValidation), UniqueUserPipe)
     @Public()
     @ApiOperation({summary: "Enregistre un nouvel utilisateur."})
+    @ApiOperation({summary: "Enregistre un nouvel utilisateur."})
     register(@Body() reqBody : CreateUserRequest){
         return this.usersService.createUser(reqBody)
     }
 
     @Patch(':id')
     @SetRoles(Roles.admin)
+    @ApiOperation({summary: "Modifie un utilisateur donné."})
+    @ApiParam({name: 'id', required: true, description: "ID de l'utilisateur à modifier.", example: 1, type: number})
     @ApiOperation({summary: "Modifie un utilisateur donné."})
     @ApiParam({name: 'id', required: true, description: "ID de l'utilisateur à modifier.", example: 1, type: number})
     updateUser(

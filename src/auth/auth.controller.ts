@@ -5,6 +5,7 @@ import { JoiValidationPipe } from 'src/common/pipes/JoiValidationPipe';
 import { Public } from './decorators/public.decorator';
 import { Request } from 'express';
 import { RefreshRequest, refreshValidation } from './validation/refresh.schema';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -13,6 +14,7 @@ export class AuthController {
     ) {}
 
     @Post('login')
+    @ApiOperation({summary:"Génère un nouvel access-token et un nouveau refresh token pour l'utilisateur donné."})
     @HttpCode(HttpStatus.OK)
     @UsePipes(new JoiValidationPipe(loginValidation))
     @Public()
@@ -21,11 +23,14 @@ export class AuthController {
     }
 
     @Delete('logout')
+    @ApiOperation({summary:"Invalide les tokens de l'utilisateur connecté."})
+    @ApiBearerAuth()
     logout(@Req() req: Request){
         return this.authService.logout(req)
     }
 
     @Post('refresh')
+    @ApiOperation({summary:"Génère un nouvel access-token et éventuellement un nouveau refresh-token pour l'utilisateur correspondant au refresh-token donné."})
     @HttpCode(HttpStatus.OK)
     @UsePipes(new JoiValidationPipe(refreshValidation))
     @Public()

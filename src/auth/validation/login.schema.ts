@@ -1,8 +1,25 @@
+import { ApiProperty } from "@nestjs/swagger";
 import Joi from "joi";
 
-export interface LoginRequest {
-    username?: string,
-    email?: string,
+export class LoginRequest {
+    @ApiProperty({
+        example: 'michel',
+        required: false,
+        description: "Champ requis si 'email' non donné."
+    })
+    username?: string
+
+    @ApiProperty({
+        example: 'michel@ouploup.com',
+        required: false,
+        description: "Champ requis si 'username' non donné."
+    })
+    email?: string
+
+    @ApiProperty({
+        example: 'MyPassword.123',
+        required: true,
+    })
     password: string
 }
 

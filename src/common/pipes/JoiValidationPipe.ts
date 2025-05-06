@@ -6,6 +6,9 @@ export class JoiValidationPipe implements PipeTransform{
     constructor(private schema: ObjectSchema) {}
 
     async transform(value: any, metadata: ArgumentMetadata) {
+        if(metadata.type === 'body' && value === undefined)
+            throw new BadRequestException('A request body is needed.')
+
         try {
             const validated = await this.schema.validateAsync(value)
             return validated

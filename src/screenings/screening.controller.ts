@@ -13,6 +13,7 @@ import { Roles } from "src/common/enums/roles.enum";
 import { CreateScreeningRequest, createScreeningValidation } from "./validation/create-screening.schema";
 import { UpdateScreeningRequest, updateScreeningValidation } from "./validation/update-screening.schema";
 import { DeleteResult } from "typeorm";
+import { PaginationRequest } from "src/common/validation/PaginationRequest";
 
 @Controller('screenings')
 export class ScreeningsController{
@@ -28,10 +29,13 @@ export class ScreeningsController{
     @ApiQuery({name: "endsBefore", description: "Les projections listées terminent avant cette date au format ISO 8601.", example: "2025-11-28T10:04:00Z", type: string, required: false})
     @ApiQuery({name: "roomName", description: "Filtre les projections selon le nom de la salle dans laquelle elles ont lieu.", example: "Salle 01", type: string, required: false})
     @ApiQuery({name: "roomId", description: "Filtre les projections selon l'ID de la salle dans laquelle elles ont lieu.", example: 1, type: number, minimum: 1, required: false})
-    @ApiQuery({name: "movieId", description: "", example: 1, type: number, minimum: 1, required: false})
+    @ApiQuery({name: "movieId", description: "Filtre les projections selon l'ID du film qu'elles projettent.", example: 1, type: number, minimum: 1, required: false})
+    @ApiQuery({name: "movieTitle", description: "Filtre les projections selon le titre du film qu'elles projettent.", example: 1, type: number, minimum: 1, required: false})
+    @ApiQuery({name: 'page', required: false, type: number, description: "Définit le numéro de la page à afficher.", minimum: 1})
+    @ApiQuery({name: 'limit', required: false, type: number, description: "Définit le nombre d'utilisateurs par page.", minimum: 1})
     @Public()
     @UsePipes(new JoiValidationPipe(listScreeningsValidation))
-    listScreenings(@Query() queryParams : ListScreeningsParams) : Promise<ListingReturn<Screening>> {
+    listScreenings(@Query() queryParams : ListScreeningsParams & PaginationRequest) : Promise<ListingReturn<Screening>> {
         return this.screeningsService.listScreenings(queryParams)
     }
 

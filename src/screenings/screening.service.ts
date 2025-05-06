@@ -11,6 +11,7 @@ import { RoomsService } from "src/rooms/rooms.service";
 import { MoviesService } from "src/movies/movies.service";
 import { Room } from "src/rooms/entities/room.entity";
 import ms from "ms";
+import { PaginationRequest } from "src/common/validation/PaginationRequest";
 
 @Injectable()
 export class ScreeningsService{
@@ -21,15 +22,51 @@ export class ScreeningsService{
         private readonly moviesService : MoviesService
     ) {}
 
-    async listScreenings(queryParams: ListScreeningsParams) : Promise<ListingReturn<Screening>> {
-        const s = await this.screeningRepository.find()
+    async listScreenings(queryParams: ListScreeningsParams & PaginationRequest) : Promise<ListingReturn<Screening>> {
+        const query = this.screeningRepository.createQueryBuilder('screening')
+            .leftJoinAndSelect('screening.room', 'room')
+            .leftJoinAndSelect('screening.movie', 'movie')
+
+        // Applying filters
+        if(queryParams.roomId !== undefined)
+            query.andWhere("room.id = :roomId", {"roomId": queryParams.roomId})
+
+        if(queryParams.roomName !== undefined)
+            query.andWhere("room.name = :roomName", {"roomName": queryParams.roomName})
+
+        if(queryParams.movieId !== undefined)
+            query.andWhere("movie.id = :movieId", {"movieId": queryParams.movieId})
+
+        if(queryParams.movieTitle !== undefined)
+            query.andWhere("movie.title = :movieTitle", {"movieTitle": queryParams.movieTitle})
+
+        if(queryParams.startsAfter !== undefined)
+            query.andWhere("screening.startsAt >= :startsAfter", {'startsAfter': queryParams.startsAfter})
+
+        if(queryParams.startsBefore !== undefined)
+            query.andWhere("screening.startsAt <= :startsBefore", {'startsBefore': queryParams.startsBefore})
+
+        if(queryParams.endsAfter !== undefined)
+            query.andWhere("screening.endsAt >= :endsAfter", {'endsAfter': queryParams.endsAfter})
+
+        if(queryParams.endsBefore !== undefined)
+            query.andWhere("screening.endsAt <= :endsBefore", {'endsBefore': queryParams.endsBefore})
+
+        // Applying pagination
+
+        query.skip((queryParams.page - 1) * queryParams.limit)
+        query.take(queryParams.limit)
+
+        const [screenings, total] = await query.getManyAndCount()
+        const totalPages = Math.ceil(total / queryParams.limit)
+
         return {
-            data: s,
+            data: screenings,
             meta: {
-                page: 1,
-                total : 1,
-                totalPages: 1,
-                limit: 10
+                page: queryParams.page,
+                total : total,
+                totalPages: totalPages,
+                limit: queryParams.limit
             }
         }
     }
@@ -67,7 +104,9 @@ export class ScreeningsService{
         // We check if there are schedule overlaps
         const conflictScreenings = await this.screeningRepository
             .createQueryBuilder('screening')
-            .where("NOT (screening.endsAt <= :startsAt OR screening.startsAt >= :endsAt) AND screening.roomId = :roomId", {startsAt: startsAt, endsAt: endsAt, roomId: room.id})
+            .where(
+                "NOT (screening.endsAt <= :startsAt OR screening.startsAt >= :endsAt) AND screening.roomId = :roomId",
+                {startsAt: startsAt, endsAt: endsAt, roomId: room.id})
             .getMany()
 
         if(conflictScreenings.length > 0)

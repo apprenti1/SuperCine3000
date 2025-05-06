@@ -126,36 +126,103 @@ export class RoomsService {
         description: 'Notre plus grande salle avec écran IMAX et son Dolby Atmos',
         images: ['https://example.com/images/grand-ecran-1.jpg', 'https://example.com/images/grand-ecran-2.jpg'],
         type: 'IMAX',
-        capacity: 300,
+        capacity: 30,
         handicapAccess: true,
+        maintenance: true
       },
       {
-        name: 'Salle Premium',
+        name: 'Studio 1',
+        description: 'Salle classique avec sièges confortables et projection 4K',
+        images: ['https://example.com/images/studio1-1.jpg'],
+        type: 'Classique',
+        capacity: 20,
+        handicapAccess: true,
+        maintenance: false
+      },
+      {
+        name: 'Studio 2',
+        description: 'Une salle Classique avec un excellent son surround',
+        images: ['https://example.com/images/studio2-1.jpg'],
+        type: 'Classique',
+        capacity: 18,
+        handicapAccess: false,
+        maintenance: false
+      },
+      {
+        name: 'Luxe Lounge',
         description: 'Salle VIP avec fauteuils inclinables et service à la place',
-        images: ['https://example.com/images/premium-1.jpg'],
+        images: ['https://example.com/images/luxe-lounge-1.jpg'],
         type: 'VIP',
-        capacity: 50,
+        capacity: 15,
         handicapAccess: true,
+        maintenance: true
       },
-      // ... autres salles ...
       {
-        name: 'Salle Privée',
-        description: 'Salle disponible à la location pour événements privés',
-        images: ['https://example.com/images/privee-1.jpg'],
-        type: 'Événementiel',
-        capacity: 40,
-        handicapAccess: true,
+        name: 'Expérience 4DX',
+        description: 'Vibrations, effets d’eau et de vent pour une immersion totale',
+        images: ['https://example.com/images/4dx-1.jpg'],
+        type: '4DX',
+        capacity: 22,
+        handicapAccess: false,
+        maintenance: true
       },
+      {
+        name: 'Cosmos',
+        description: 'Salle IMAX dédiée aux documentaires et films spatiaux',
+        images: ['https://example.com/images/cosmos-1.jpg'],
+        type: 'IMAX',
+        capacity: 28,
+        handicapAccess: true,
+        maintenance: false
+      },
+      {
+        name: 'Studio 3',
+        description: 'Salle classique idéale pour les films d’auteur',
+        images: ['https://example.com/images/studio3-1.jpg'],
+        type: 'Classique',
+        capacity: 19,
+        handicapAccess: false,
+        maintenance: false
+      },
+      {
+        name: 'Évasion',
+        description: 'Ambiance intimiste avec sièges en cuir et éclairage tamisé',
+        images: ['https://example.com/images/evasion-1.jpg'],
+        type: 'VIP',
+        capacity: 16,
+        handicapAccess: true,
+        maintenance: false
+      },
+      {
+        name: 'Tornado',
+        description: 'Salle 4DX conçue pour les blockbusters d’action',
+        images: ['https://example.com/images/tornado-1.jpg'],
+        type: '4DX',
+        capacity: 25,
+        handicapAccess: false,
+        maintenance: true
+      },
+      {
+        name: 'Horizon',
+        description: 'Salle IMAX à la pointe de la technologie avec écran incurvé',
+        images: ['https://example.com/images/horizon-1.jpg'],
+        type: 'IMAX',
+        capacity: 30,
+        handicapAccess: true,
+        maintenance: false
+      }      
     ];
 
+    let i = 0
     for (const roomData of rooms) {
       const exists = await this.roomsRepository.findOneBy({ name: roomData.name });
       if (!exists) {
-        const room = this.roomsRepository.create(roomData);
-        await this.roomsRepository.save(room);
+        const room = this.roomsRepository.create(roomData)
+        await this.roomsRepository.save(room)
+        ++i
       }
     }
 
-    return { message: '10 rooms have been seeded successfully' };
+    return { message: i + ' rooms have been seeded successfully' };
   }
 }

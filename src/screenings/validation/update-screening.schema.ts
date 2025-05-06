@@ -7,7 +7,7 @@ export class UpdateScreeningRequest{
         required: false,
         description: "Horodatage du début de la projection au format ISO 8601."
     })
-    startsAt: string
+    startsAt?: string
 
     @ApiProperty({
         example: 1,
@@ -15,7 +15,7 @@ export class UpdateScreeningRequest{
         minimum: 1,
         description: "Requis sans `roomName`."
     })
-    roomId?: number
+    roomId?: string
 
     @ApiProperty({
         example: 'Salle 01',
@@ -29,12 +29,12 @@ export class UpdateScreeningRequest{
         minimum: 1,
         required: false
     })
-    movieId: number
+    movieId?: number
 }
 
 export const updateScreeningValidation = Joi.object<UpdateScreeningRequest>({
     startsAt: Joi.date().iso(),
-    roomId: Joi.number().integer().min(1),
+    roomId: Joi.string().uuid(),
     roomName: Joi.string(),
     movieId: Joi.number().integer().min(1)
 }).without('roomId', 'roomName').options({abortEarly: false})

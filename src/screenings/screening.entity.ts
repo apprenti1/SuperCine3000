@@ -28,4 +28,18 @@ export class Screening{
 
     @UpdateDateColumn({type: "timestamptz"})
     updatedAt: Date
+
+    constructor(
+        id: number,
+        startsAt: Date,
+        endsAt: Date,
+        room: Room,
+        movie: Movie
+    ){
+        this.id = id
+        this.startsAt = startsAt
+        this.endsAt = endsAt
+        this.room = room
+        this.movie = movie
+    }
 }

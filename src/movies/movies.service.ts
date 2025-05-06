@@ -136,7 +136,7 @@ export class MoviesService {
         return movie
     }
 
-    async seed() : Promise<string> {
+    async seed() {
         const movies = [
             {
                 title: 'The Shawshank Redemption',
@@ -426,6 +426,6 @@ export class MoviesService {
         }
 
         
-        return i > 1 ? i + " movies seeded." : i + " movie seeded."
+        return {message: i > 1 ? i + " movies seeded." : i + " movie seeded."}
     }
 }

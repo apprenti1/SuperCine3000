@@ -80,7 +80,7 @@ export class MoviesController {
     @Post('seed')
     @ApiOperation({summary: "Ajoute une cinquantaine de films à la base de données."})
     @Public()
-    seed() : Promise<string> {
+    seed() {
         return this.moviesService.seed()
     }
 }

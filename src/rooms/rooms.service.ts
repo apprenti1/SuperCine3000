@@ -70,7 +70,7 @@ export class RoomsService {
     }
   }
 
-  async findById(params: RoomId, req : Request) {
+  async findById(params: RoomId, req : Request) : Promise<Room> {
     const room = await this.roomsRepository.findOneBy(
       req['user'].role === Roles.customer ?
       { id: params.id , maintenance: false}
@@ -81,6 +81,22 @@ export class RoomsService {
     if (!room) {
       throw new NotFoundException(`Room with ID ${params.id} not found`)
     }
+    return room
+  }
+
+  async findByRoomId(uuid: string) : Promise<Room> {
+    const room = await this.roomsRepository.findOne({where: {id: uuid}})
+    if(room === null)
+      throw new NotFoundException("Room not found.")
+
+    return room
+  }
+
+  async findByName(name: string) : Promise<Room> {
+    const room = await this.roomsRepository.findOne({where: {name: name}})
+    if(room === null)
+      throw new NotFoundException("Room not found.")
+
     return room
   }
 

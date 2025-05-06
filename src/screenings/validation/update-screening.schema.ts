@@ -10,13 +10,6 @@ export class UpdateScreeningRequest{
     startsAt: string
 
     @ApiProperty({
-        example: "2025-05-06T20:13:40Z",
-        required: false,
-        description: "Horodatage de la fin de la projection au format ISO 8601."
-    })
-    endsAt: string
-
-    @ApiProperty({
         example: 1,
         required: false,
         minimum: 1,
@@ -41,7 +34,6 @@ export class UpdateScreeningRequest{
 
 export const updateScreeningValidation = Joi.object<UpdateScreeningRequest>({
     startsAt: Joi.date().iso(),
-    endsAt: Joi.date().iso(),
     roomId: Joi.number().integer().min(1),
     roomName: Joi.string(),
     movieId: Joi.number().integer().min(1)

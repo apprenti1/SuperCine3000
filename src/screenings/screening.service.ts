@@ -187,10 +187,6 @@ export class ScreeningsService{
 
     async seed() {
         const screenings : Screening[] = [
-            /*new Screening(
-                1, new Date("2025-05-05T09:19:57.168Z"), new Date("2025-05-05T09:19:57.168Z"),
-                await this.roomsService.findByName("Cosmos"), await this.moviesService.getMovie({id: 5})
-            ),*/
             new Screening(1,  new Date("2025-05-12T10:00:00Z"), this.computeEndsAt(new Date("2025-05-12T10:00:00Z"),await this.moviesService.getMovie({id: 36})), await this.roomsService.findByName("Horizon")       , await this.moviesService.getMovie({id: 36})),
             new Screening(2,  new Date("2025-05-12T13:00:00Z"), this.computeEndsAt(new Date("2025-05-12T13:00:00Z"),await this.moviesService.getMovie({id: 14})), await this.roomsService.findByName("Studio 2")      , await this.moviesService.getMovie({id: 14})),
             new Screening(3,  new Date("2025-05-12T11:00:00Z"), this.computeEndsAt(new Date("2025-05-12T11:00:00Z"),await this.moviesService.getMovie({id: 25})), await this.roomsService.findByName("Horizon")       , await this.moviesService.getMovie({id: 25})),

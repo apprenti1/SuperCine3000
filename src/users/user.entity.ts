@@ -2,6 +2,7 @@ import { Token } from "src/tokens/token.entity";
 import { Roles } from "src/common/enums/roles.enum";
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { MoneyTransaction } from "src/transactions/transaction.entity";
+import { Ticket } from "src/tickets/ticket.entity";
 
 @Entity()
 export class User {
@@ -34,6 +35,9 @@ export class User {
 
     @OneToMany(() => MoneyTransaction, transac => transac.user)
     transactions: MoneyTransaction[]
+
+    @OneToMany(() => Ticket, ticket => ticket.user)
+    tickets: Ticket[]
 
     constructor(
         id: number,

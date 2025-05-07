@@ -1,5 +1,6 @@
 import { Movie } from "src/movies/movie.entity";
 import { Room } from "src/rooms/entities/room.entity";
+import { Ticket } from "src/tickets/ticket.entity";
 import { Column, CreateDateColumn, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
@@ -24,6 +25,9 @@ export class Screening{
 
     @UpdateDateColumn({type: "timestamptz"})
     updatedAt: Date
+
+    @ManyToMany(() => Ticket, ticket => ticket.screenings)
+    tickets : Ticket[]
 
     constructor(
         id: number,

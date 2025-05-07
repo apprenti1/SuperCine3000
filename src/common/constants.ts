@@ -17,3 +17,11 @@
 
     // @SetRoles decorator: set the authorised roles for the given route or controller
     export const SET_ROLES_KEY = 'allowedRoles'
+
+/* Appdata */
+
+    // Price for 1 classic ticket
+    export const CLASSIC_TICKET_PRICE = 8
+
+    // Price for 1 super ticket (1 super ticket = 10 classic tickets)
+    export const SUPER_TICKET_PRICE = CLASSIC_TICKET_PRICE * 9

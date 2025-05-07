@@ -89,6 +89,14 @@ export class ScreeningsService{
         // We get and check the movie existence
         const movie = await this.moviesService.getMovie({id: body.movieId})
 
+        // We compute the endsAt value
+        const endsAt = this.computeEndsAt(startsAt, movie)
+
+        // We check the cinema is open for the given times
+        if(startsAt.getHours() < 9 || endsAt.getHours() > 20)
+            throw new BadRequestException("A screening must happen between 9:00 and 20:00.")
+
+
         // We get and check the room existence
         let room : Room | null = null
         if(body.roomId !== undefined)
@@ -99,8 +107,6 @@ export class ScreeningsService{
         if(room === null)
             throw new NotFoundException('Room not found.')
 
-        // We compute the endsAt value
-        const endsAt = this.computeEndsAt(startsAt, movie)
 
         // We check if there are schedule overlaps
         if(await this.isThereScheduleOverlaps(startsAt, endsAt, room))
@@ -138,6 +144,11 @@ export class ScreeningsService{
             screening.room = room
         }
 
+        // We check the cinema is open for the given times
+        if(screening.startsAt.getHours() < 9 || screening.endsAt.getHours() > 20)
+            throw new BadRequestException("A screening must happen between 9:00 and 20:00.")
+
+        // We check if there is schedule overlaps
         if(await this.isThereScheduleOverlaps(screening.startsAt, screening.endsAt, screening.room, screening.id))
             throw new ConflictException("A screening is already planned in this room, in this time slot.")
 

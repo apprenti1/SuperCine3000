@@ -33,7 +33,6 @@ export class ScreeningsController{
     @ApiQuery({name: "movieTitle", description: "Filtre les projections selon le titre du film qu'elles projettent.", example: 1, type: number, minimum: 1, required: false})
     @ApiQuery({name: 'page', required: false, type: number, description: "Définit le numéro de la page à afficher.", minimum: 1})
     @ApiQuery({name: 'limit', required: false, type: number, description: "Définit le nombre d'utilisateurs par page.", minimum: 1})
-    @Public()
     @UsePipes(new JoiValidationPipe(listScreeningsValidation))
     listScreenings(@Query() queryParams : ListScreeningsParams & PaginationRequest) : Promise<ListingReturn<Screening>> {
         return this.screeningsService.listScreenings(queryParams)
@@ -42,7 +41,6 @@ export class ScreeningsController{
     @Get(':id')
     @ApiOperation({summary: "Présente la projection d'ID donné."})
     @ApiParam({name: 'id', description: "ID de la projection à présenter.", type: number, example: 1})
-    @Public()
     @UsePipes(new JoiValidationPipe(screeningIdValidation))
     getScreening(@Param() params : ScreeningId) : Promise<Screening> {
         return this.screeningsService.getScreening(params)

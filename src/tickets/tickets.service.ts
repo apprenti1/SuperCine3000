@@ -23,13 +23,35 @@ export class TicketsService{
     ) {}
 
     async listTickets(queryParams: ListTicketsParams & PaginationRequest) : Promise<ListingReturn<Ticket>> {
-        const tickets = await this.ticketsRepository.find()
+        const query = this.ticketsRepository.createQueryBuilder('ticket')
+            .leftJoinAndSelect('ticket.screenings', 'screenings')
+            .leftJoinAndSelect('ticket.user', 'user')
+
+        if(queryParams.type !== undefined)
+            query.andWhere('ticket.type = :type', {type: queryParams.type})
+
+        if(queryParams.ownerId !== undefined)
+            query.andWhere('user.id = :id', {id: queryParams.ownerId})
+
+        if(queryParams.ownerName !== undefined)
+            query.andWhere('user.username = :name', {name: queryParams.ownerName})
+
+        if(queryParams.screeningId !== undefined)
+            query.andWhere('screenings.id = :id', {id: queryParams.screeningId})
+
+        // Applying pagination
+
+        query.skip((queryParams.page - 1) * queryParams.limit)
+        query.take(queryParams.limit)
+
+        const [tickets, total] = await query.getManyAndCount()
+        const totalPages = Math.ceil(total / queryParams.limit)
 
         return {
             data: tickets,
             meta: {
-                totalPages: 1,
-                total: 1,
+                totalPages: totalPages,
+                total: total,
                 page: queryParams.page,
                 limit: queryParams.limit
             }

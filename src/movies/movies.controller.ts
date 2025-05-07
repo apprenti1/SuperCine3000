@@ -14,11 +14,15 @@ import { Roles } from "src/common/enums/roles.enum";
 import { Public } from "src/auth/decorators/public.decorator";
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery } from "@nestjs/swagger";
 import { number, string } from "joi";
+import { ListScreeningsParams, listScreeningsValidation } from "src/screenings/validation/list-screenings.schema";
+import { Screening } from "src/screenings/screening.entity";
+import { ScreeningsService } from "src/screenings/screening.service";
 
 @Controller('movies')
 export class MoviesController {
     constructor(
-        private readonly moviesService : MoviesService
+        private readonly moviesService : MoviesService,
+        private readonly screeningsService: ScreeningsService
     ) {}
 
     @Get()
@@ -44,6 +48,27 @@ export class MoviesController {
     @UsePipes(new JoiValidationPipe(movieIdValidation))
     getMovie(@Param() params: MovieId) : Promise<Movie> {
         return this.moviesService.getMovie(params)
+    }
+
+    @Get(':id/planning')
+    @ApiBearerAuth()
+    @ApiOperation({summary: "Présente les projections qui auront lieu de la salle d'ID donné en appliquant les paramètres passés dans l'URL."})
+    @ApiParam({name: 'id', description: "ID de la salle concernée.", example: 1, type: number})
+    @ApiQuery({name: "startsAfter", description: "Les projections listées débutent après cette date au format ISO 8601.", example: "2025-05-06T18:00:00Z", type: string, required: false})
+    @ApiQuery({name: "startsBefore", description: "Les projections listées débutent avant cette date au format ISO 8601.", example: "2025-05-07T19:35:00Z", type: string, required: false})
+    @ApiQuery({name: "endsAfter", description: "Les projections listées terminent après cette date au format ISO 8601.", example: "2025-10-18T18:46:00Z", type: string, required: false})
+    @ApiQuery({name: "endsBefore", description: "Les projections listées terminent avant cette date au format ISO 8601.", example: "2025-11-28T10:04:00Z", type: string, required: false})
+    @ApiQuery({name: "roomName", description: "Filtre les projections selon le nom de la salle dans laquelle elles ont lieu.", example: "Salle 01", type: string, required: false})
+    @ApiQuery({name: "roomId", description: "Filtre les projections selon l'ID de la salle dans laquelle elles ont lieu.", example: "1", type: number, minimum: 1, required: false})
+    @ApiQuery({name: 'page', required: false, type: number, description: "Définit le numéro de la page à afficher.", minimum: 1})
+    @ApiQuery({name: 'limit', required: false, type: number, description: "Définit le nombre d'utilisateurs par page.", minimum: 1})
+    listRoomScreenings(
+        @Param(new JoiValidationPipe(movieIdValidation)) params : MovieId,
+        @Query(new JoiValidationPipe(listScreeningsValidation)) queryParams : ListScreeningsParams & PaginationRequest
+    ) : Promise<ListingReturn<Screening>> {
+        queryParams.movieId = params.id
+        queryParams.movieTitle = undefined
+        return this.screeningsService.listScreenings(queryParams)
     }
 
     @Post()

@@ -7,7 +7,7 @@ import { RoomsModule } from "src/rooms/rooms.module";
 import { Screening } from "./screening.entity";
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Screening]), MoviesModule, forwardRef(() => RoomsModule)],
+    imports: [TypeOrmModule.forFeature([Screening]), forwardRef(() => MoviesModule), forwardRef(() => RoomsModule)],
     controllers: [ScreeningsController],
     providers: [ScreeningsService],
     exports: [ScreeningsService]

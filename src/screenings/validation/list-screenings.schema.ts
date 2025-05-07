@@ -17,7 +17,7 @@ export const listScreeningsValidation = Joi.object<ListScreeningsParams & Pagina
     startsBefore: Joi.date().iso(),
     endsAfter: Joi.date().iso(),
     endsBefore: Joi.date().iso(),
-    roomId: Joi.string().uuid(),
+    roomId: Joi.number().integer().min(1),
     roomName: Joi.string(),
     movieId: Joi.number().integer().min(1),
     movieTitle: Joi.string().min(1).max(100),

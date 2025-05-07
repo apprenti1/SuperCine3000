@@ -28,7 +28,7 @@ export class ScreeningsController{
     @ApiQuery({name: "endsAfter", description: "Les projections listées terminent après cette date au format ISO 8601.", example: "2025-10-18T18:46:00Z", type: string, required: false})
     @ApiQuery({name: "endsBefore", description: "Les projections listées terminent avant cette date au format ISO 8601.", example: "2025-11-28T10:04:00Z", type: string, required: false})
     @ApiQuery({name: "roomName", description: "Filtre les projections selon le nom de la salle dans laquelle elles ont lieu.", example: "Salle 01", type: string, required: false})
-    @ApiQuery({name: "roomId", description: "Filtre les projections selon l'UUID de la salle dans laquelle elles ont lieu.", example: "f63c7f30-1727-42b0-be12-ec3841c96b1d", type: string, minimum: 1, required: false})
+    @ApiQuery({name: "roomId", description: "Filtre les projections selon l'ID de la salle dans laquelle elles ont lieu.", example: "1", type: number, minimum: 1, required: false})
     @ApiQuery({name: "movieId", description: "Filtre les projections selon l'ID du film qu'elles projettent.", example: 1, type: number, minimum: 1, required: false})
     @ApiQuery({name: "movieTitle", description: "Filtre les projections selon le titre du film qu'elles projettent.", example: 1, type: number, minimum: 1, required: false})
     @ApiQuery({name: 'page', required: false, type: number, description: "Définit le numéro de la page à afficher.", minimum: 1})

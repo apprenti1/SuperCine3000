@@ -131,22 +131,22 @@ export class UsersService{
     async seedUsers() {
         const users : User[] = [
             new User(
-                30000, 'admin@yopmail.com', 'admin', 'adminadmin', Roles.admin, 999, [], [], []
+                30000, 'admin@yopmail.com', 'admin', 'adminadmin', Roles.admin, 999, [], []
             ),
             new User(
-                30001, 'michel@yopmail.com', 'michel', 'michelmichel', Roles.customer, 30, [], [], []
+                30001, 'michel@yopmail.com', 'michel', 'michelmichel', Roles.customer, 30, [], []
             ),
             new User(
-                30002, 'germaine@yopmail.com', 'germaine', 'germainegermaine', Roles.customer, 300, [], [], []
+                30002, 'germaine@yopmail.com', 'germaine', 'germainegermaine', Roles.customer, 300, [], []
             ),
             new User(
-                30003, 'alphonse@yopmail.com', 'alphonse', 'alphonsealphonse', Roles.customer, 50, [], [], []
+                30003, 'alphonse@yopmail.com', 'alphonse', 'alphonsealphonse', Roles.customer, 50, [], []
             ),
             new User(
-                30004, 'jean.marc@yopmail.com', 'jean-marc', 'jean-marc92', Roles.customer, 64, [], [], []
+                30004, 'jean.marc@yopmail.com', 'jean-marc', 'jean-marc92', Roles.customer, 64, [], []
             ),
             new User(
-                30005, 'remi@yopmail.com', 'remi', 'remiremiremi', Roles.customer, 2, [], [], []
+                30005, 'remi@yopmail.com', 'remi', 'remiremiremi', Roles.customer, 2, [], []
             ),
         ]
 

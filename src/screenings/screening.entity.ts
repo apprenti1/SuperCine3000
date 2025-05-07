@@ -1,6 +1,5 @@
 import { Movie } from "src/movies/movie.entity";
 import { Room } from "src/rooms/entities/room.entity";
-import { User } from "src/users/user.entity";
 import { Column, CreateDateColumn, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
@@ -19,9 +18,6 @@ export class Screening{
 
     @ManyToOne(() => Movie, movie => movie.screenings)
     movie: Movie
-
-    @ManyToMany(() => User, user => user.screenings)
-    users: User[]
 
     @CreateDateColumn({type: "timestamptz"})
     createdAt: Date

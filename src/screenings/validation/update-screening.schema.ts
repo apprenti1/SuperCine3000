@@ -15,7 +15,7 @@ export class UpdateScreeningRequest{
         minimum: 1,
         description: "Requis sans `roomName`."
     })
-    roomId?: string
+    roomId?: number
 
     @ApiProperty({
         example: 'Salle 01',
@@ -34,7 +34,7 @@ export class UpdateScreeningRequest{
 
 export const updateScreeningValidation = Joi.object<UpdateScreeningRequest>({
     startsAt: Joi.date().iso(),
-    roomId: Joi.string().uuid(),
+    roomId: Joi.number().integer().min(1),
     roomName: Joi.string(),
     movieId: Joi.number().integer().min(1)
 }).without('roomId', 'roomName').options({abortEarly: false})

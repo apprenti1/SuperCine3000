@@ -41,7 +41,7 @@ export class RoomsController {
     @Get(':id')
     @ApiBearerAuth()
     @ApiOperation({summary: "Présente la salle d'ID donné."})
-    @ApiParam({name: 'id', description: "ID de la salle à présenter.", example: 'f63c7f30-1727-42b0-be12-ec0718c96b1d', type: string})
+    @ApiParam({name: 'id', description: "ID de la salle à présenter.", example: '1', type: number})
     getRoom(
         @Param(new JoiValidationPipe(roomIdValidation), ExistingRoomPipe) params: RoomId,
         @Req() req : Request
@@ -61,7 +61,7 @@ export class RoomsController {
     @Patch(':id')
     @ApiBearerAuth()
     @ApiOperation({summary: "Modifie la salle d'ID donné."})
-    @ApiParam({name: 'id', description: "ID de la salle à modifier.", example: 'f63c7f30-1727-42b0-be12-ec0718c96b1d', type: string})
+    @ApiParam({name: 'id', description: "ID de la salle à modifier.", example: '1', type: number})
     @SetRoles(Roles.admin)
     updateRoom(
         @Param(new JoiValidationPipe(roomIdValidation), ExistingRoomPipe) params: RoomId,
@@ -73,7 +73,7 @@ export class RoomsController {
     @Delete(':id')
     @ApiBearerAuth()
     @ApiOperation({summary: "Supprime la salle d'ID donné."})
-    @ApiParam({name: 'id', description: "ID de la salle à supprimer.", example: 'f63c7f30-1727-42b0-be12-ec0718c96b1d', type: string})
+    @ApiParam({name: 'id', description: "ID de la salle à supprimer.", example: '1', type: number})
     @SetRoles(Roles.admin)
     @UsePipes(new JoiValidationPipe(roomIdValidation), ExistingRoomPipe)
     deleteRoom(@Param() params: RoomId) {

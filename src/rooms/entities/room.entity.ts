@@ -3,8 +3,8 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('rooms')
 export class Room {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column({ unique: true })
   name: string;
@@ -37,7 +37,7 @@ export class Room {
   updatedAt: Date;
 
   constructor(
-    id: string,
+    id: number,
     name: string,
     description: string,
     images: string[],

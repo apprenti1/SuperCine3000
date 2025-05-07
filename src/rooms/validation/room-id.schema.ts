@@ -1,9 +1,9 @@
 import Joi from 'joi';
 
 export interface RoomId {
-  id: string;
+  id: number;
 }
 
 export const roomIdValidation = Joi.object<RoomId>({
-  id: Joi.string().uuid().required(),
+  id: Joi.number().integer().min(1).required(),
 });

@@ -15,7 +15,7 @@ export class CreateScreeningRequest{
         minimum: 1,
         description: "Requis sans `roomName`."
     })
-    roomId?: string
+    roomId?: number
 
     @ApiProperty({
         example: 'Salle 01',
@@ -34,7 +34,7 @@ export class CreateScreeningRequest{
 
 export const createScreeningValidation = Joi.object<CreateScreeningRequest>({
     startsAt: Joi.date().iso().required(),
-    roomId: Joi.string().uuid(),
+    roomId: Joi.number().integer().min(1),
     roomName: Joi.string(),
     movieId: Joi.number().integer().min(1).required()
 }).options({abortEarly: false})

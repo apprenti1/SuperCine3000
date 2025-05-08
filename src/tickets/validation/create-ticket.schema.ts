@@ -23,10 +23,17 @@ export class CreateTicketRequest{
         description: "Ne peut être donné avec `userId`. Si aucun des deux n'est donné, l'achat est fait pour l'utilisateur courant."
     })
     username: string
+
+    @ApiProperty({
+        example: '1',
+        required: false
+    })
+    screeningId?: number
 }
 
 export const createTicketValidation = Joi.object<CreateTicketRequest>({
     type: Joi.string().valid(...Object.values(TicketTypes) as string[]).required(),
     userId: Joi.number().integer().min(1),
-    username: Joi.string().min(3)
+    username: Joi.string().min(3),
+    screeningId: Joi.number().integer().min(1)
 }).without('userId', 'username').options({abortEarly: false})

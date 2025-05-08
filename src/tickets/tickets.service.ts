@@ -13,13 +13,16 @@ import { UsersService } from "src/users/users.service";
 import { UpdateTicketRequest } from "./validation/update-ticket.schema";
 import { TicketTypes } from "src/common/enums/tickets-type.enum";
 import { CLASSIC_TICKET_PRICE, SUPER_TICKET_PRICE } from "src/common/constants";
+import { ScreeningsService } from "src/screenings/screening.service";
+import { Screening } from "src/screenings/screening.entity";
 
 @Injectable()
 export class TicketsService{
     constructor(
         @InjectRepository(Ticket)
         private ticketsRepository : Repository<Ticket>,
-        private readonly usersService : UsersService
+        private readonly usersService : UsersService,
+        private readonly screeningsService: ScreeningsService
     ) {}
 
     async listTickets(queryParams: ListTicketsParams & PaginationRequest) : Promise<ListingReturn<Ticket>> {
@@ -67,6 +70,13 @@ export class TicketsService{
     }
 
     async createTicket(body: CreateTicketRequest, req: Request) : Promise<Ticket> {
+        let screening : Screening | null = null
+        if(body.screeningId !== undefined){
+            screening = await this.screeningsService.getScreening({id: body.screeningId})
+            if(screening.isFull())
+                throw new ConflictException('Requested screening is full.')
+        }
+
         let user : User | null = null
         if(body.userId !== undefined){
             user = await this.usersService.findById(body.userId)
@@ -96,7 +106,8 @@ export class TicketsService{
 
         let ticket = this.ticketsRepository.create({
             type: body.type,
-            user: user
+            user: user,
+            screenings: screening === null ? [] : [screening]
         })
         ticket = await this.ticketsRepository.save(ticket)
 

@@ -14,7 +14,7 @@ export class Ticket{
     @ManyToOne(() => User, user => user.tickets)
     user: User
 
-    @ManyToMany(() => Screening, screening => screening.tickets)
+    @ManyToMany(() => Screening, screening => screening.tickets, {cascade: true})
     @JoinTable()
     screenings: Screening[]
 

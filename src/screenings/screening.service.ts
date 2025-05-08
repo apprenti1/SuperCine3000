@@ -73,11 +73,17 @@ export class ScreeningsService{
     }
 
     async getScreening(params: ScreeningId) : Promise<Screening> {
-        const screening = await this.screeningRepository.findOne({where: {id: params.id}, relations: ['room', 'movie']})
+        const screening = await this.screeningRepository.findOne({where: {id: params.id}, relations: ['room', 'movie', 'tickets']})
         if(screening === null)
             throw new NotFoundException('Screening not found.')
 
         return screening
+    }
+
+    async isScreeningFull(screeningId: number) : Promise<boolean> {
+        const screening = await this.getScreening({id: screeningId})
+
+        return screening.tickets.length === screening.room.capacity
     }
 
     async createScreening(body: CreateScreeningRequest) : Promise<Screening> {

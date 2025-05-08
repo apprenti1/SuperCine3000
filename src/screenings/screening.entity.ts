@@ -42,4 +42,8 @@ export class Screening{
         this.room = room
         this.movie = movie
     }
+
+    public isFull() : boolean {
+        return this.tickets.length === this.room.capacity
+    }
 }

@@ -26,7 +26,7 @@ export class TokensController {
     @ApiQuery({name: "ownerId", description: "Filtre les tokens selon l'ID de leur propriétaire.", minimum: 1, example: 3, type: number, required: false})
     @ApiQuery({name: "type", description: "Filtre les tokens selon leur type. Valeurs possibles : access, refresh", example: TokensType.access, type: string, required: false})
     @ApiQuery({name: 'page', required: false, type: number, description: "Définit le numéro de la page à afficher.", minimum: 1})
-    @ApiQuery({name: 'limit', required: false, type: number, description: "Définit le nombre d'utilisateurs par page.", minimum: 1})
+    @ApiQuery({name: 'limit', required: false, type: number, description: "Définit le nombre de tokens par page.", minimum: 1})
     @SetRoles(Roles.admin)
     @UsePipes(new JoiValidationPipe(listTokensValidation))
     listTokens(@Query() queryParams: ListTokensParams & PaginationRequest) : Promise<ListingReturn<Token>> {

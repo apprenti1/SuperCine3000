@@ -32,7 +32,7 @@ export class ScreeningsController{
     @ApiQuery({name: "movieId", description: "Filtre les projections selon l'ID du film qu'elles projettent.", example: 1, type: number, minimum: 1, required: false})
     @ApiQuery({name: "movieTitle", description: "Filtre les projections selon le titre du film qu'elles projettent.", example: 1, type: number, minimum: 1, required: false})
     @ApiQuery({name: 'page', required: false, type: number, description: "Définit le numéro de la page à afficher.", minimum: 1})
-    @ApiQuery({name: 'limit', required: false, type: number, description: "Définit le nombre d'utilisateurs par page.", minimum: 1})
+    @ApiQuery({name: 'limit', required: false, type: number, description: "Définit le nombre de projections par page.", minimum: 1})
     @UsePipes(new JoiValidationPipe(listScreeningsValidation))
     listScreenings(@Query() queryParams : ListScreeningsParams & PaginationRequest) : Promise<ListingReturn<Screening>> {
         return this.screeningsService.listScreenings(queryParams)

@@ -15,6 +15,7 @@ import { TicketTypes } from "src/common/enums/tickets-type.enum";
 import { CLASSIC_TICKET_PRICE, SUPER_TICKET_PRICE } from "src/common/constants";
 import { ScreeningsService } from "src/screenings/screening.service";
 import { Screening } from "src/screenings/screening.entity";
+import { Roles } from "src/common/enums/roles.enum";
 
 @Injectable()
 export class TicketsService{
@@ -78,13 +79,14 @@ export class TicketsService{
         }
 
         let user : User | null = null
-        if(body.userId !== undefined){
+        // Only an admin user can buy a ticket for another user
+        if(body.userId !== undefined && req['user'].role === Roles.admin){
             user = await this.usersService.findById(body.userId)
             if(user === null)
                 throw new NotFoundException("User not found.")
         }
 
-        if(body.username !== undefined){
+        if(body.username !== undefined && req['user'].role === Roles.admin){
             user = await this.usersService.findByUsername(body.username)
             if(user === null)
                 throw new NotFoundException("User not found.")

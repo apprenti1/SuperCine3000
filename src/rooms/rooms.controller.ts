@@ -36,7 +36,7 @@ export class RoomsController {
     @ApiQuery({name: 'handicapAccess', description: "Filtre les salles selon leur propriété handicapAccess.", example: "false", type: boolean, required: false})
     @ApiQuery({name: 'maintenance', description: "Filtre les salles selon si elles sont en maintenance ou pas.", example: "true", type: boolean, required: false})
     @ApiQuery({name: 'page', required: false, type: number, description: "Définit le numéro de la page à afficher.", minimum: 1})
-    @ApiQuery({name: 'limit', required: false, type: number, description: "Définit le nombre d'utilisateurs par page.", minimum: 1})
+    @ApiQuery({name: 'limit', required: false, type: number, description: "Définit le nombre de salles par page.", minimum: 1})
     getRooms(
         @Query(new JoiValidationPipe(listRoomsValidation)) queryParams: ListRoomsParam & PaginationRequest,
         @Req() req : Request

@@ -27,6 +27,7 @@ export class ScreeningsService{
         const query = this.screeningRepository.createQueryBuilder('screening')
             .leftJoinAndSelect('screening.room', 'room')
             .leftJoinAndSelect('screening.movie', 'movie')
+            .leftJoinAndSelect('screening.tickets', 'ticket')
 
         // Applying filters
         if(queryParams.roomId !== undefined)
@@ -125,7 +126,7 @@ export class ScreeningsService{
     }
 
     async patchScreening(params: ScreeningId, body: UpdateScreeningRequest) : Promise<Screening> {
-        let screening = await this.screeningRepository.findOne({where: {id: params.id}, relations: ['room', 'movie']})
+        let screening = await this.screeningRepository.findOne({where: {id: params.id}, relations: ['room', 'movie', 'screenings']})
         if(!screening)
             throw new NotFoundException("Screening not found.")
 

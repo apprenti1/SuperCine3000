@@ -5,9 +5,10 @@ import { UsersModule } from "src/users/users.module";
 import { TicketsController } from "./tickets.controller";
 import { TicketsService } from "./tickets.service";
 import { ScreeningsModule } from "src/screenings/screening.module";
+import { TransactionsModule } from "src/transactions/transactions.module";
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Ticket]), UsersModule, ScreeningsModule],
+    imports: [TypeOrmModule.forFeature([Ticket]), UsersModule, ScreeningsModule, TransactionsModule],
     controllers: [TicketsController],
     providers: [TicketsService],
     exports: [TicketsService]

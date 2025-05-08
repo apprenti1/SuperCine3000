@@ -16,6 +16,8 @@ import { CLASSIC_TICKET_PRICE, SUPER_TICKET_PRICE } from "src/common/constants";
 import { ScreeningsService } from "src/screenings/screening.service";
 import { Screening } from "src/screenings/screening.entity";
 import { Roles } from "src/common/enums/roles.enum";
+import { TransactionsService } from "src/transactions/transactions.service";
+import { TransactionTypes } from "src/common/enums/transactions-type.enum";
 
 @Injectable()
 export class TicketsService{
@@ -23,7 +25,8 @@ export class TicketsService{
         @InjectRepository(Ticket)
         private ticketsRepository : Repository<Ticket>,
         private readonly usersService : UsersService,
-        private readonly screeningsService: ScreeningsService
+        private readonly screeningsService: ScreeningsService,
+        private readonly transactionsService: TransactionsService
     ) {}
 
     async listTickets(queryParams: ListTicketsParams & PaginationRequest) : Promise<ListingReturn<Ticket>> {
@@ -103,8 +106,7 @@ export class TicketsService{
         const ticketPrice = body.type === TicketTypes.classic ? CLASSIC_TICKET_PRICE : SUPER_TICKET_PRICE
         if(user.wallet < ticketPrice)
             throw new ConflictException("User does not have enough money to pay the ticket.")
-        user.wallet -= ticketPrice
-        this.usersService.saveUser(user)
+        this.transactionsService.newTransaction(ticketPrice, TransactionTypes.payment, user.id)
 
         let ticket = this.ticketsRepository.create({
             type: body.type,
@@ -140,8 +142,8 @@ export class TicketsService{
             if(newUser.wallet < ticketPrice)
                 throw new ConflictException("Impossible to change the user : the new user can't pay the ticket.")
 
-            newUser.wallet -= ticketPrice
-            ticket.user.wallet += ticketPrice
+            await this.transactionsService.newTransaction(ticketPrice, TransactionTypes.payment, newUser.id)
+            await this.transactionsService.newTransaction(ticketPrice, TransactionTypes.refund, ticket.user.id)
         }
 
         const user = newUser === null ? ticket.user : newUser
@@ -157,7 +159,13 @@ export class TicketsService{
             if(user.wallet < amountToPay)
                 throw new ConflictException("User does not have enough money to pay the ticket change.")
 
-            user.wallet -= amountToPay
+            //user.wallet -= amountToPay
+            if(amountToPay < 0)
+                await this.transactionsService.newTransaction(-amountToPay, TransactionTypes.refund, user.id)
+            else
+                await this.transactionsService.newTransaction(amountToPay,  TransactionTypes.payment, user.id)
+            //const t = await this.transactionsService.newTransaction(amountToPay,  ? TransactionTypes.refund : TransactionTypes.payment, user.id)
+            //console.log(t)
 
             ticket.type = body.type
         }

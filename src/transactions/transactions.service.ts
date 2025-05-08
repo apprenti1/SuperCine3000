@@ -79,21 +79,38 @@ export class TransactionsService {
         if(!transactionAuthor)
             throw new NotFoundException('User not found.')
 
-        if(body.type === TransactionTypes.withdrawal && transactionAuthor.wallet < body.amount)
+        await this.applyTransaction(body.amount, body.type, transactionAuthor)
+
+        const transaction = await this.addTransaction(body.amount, body.type, transactionAuthor)
+
+        return transaction
+    }
+
+    async newTransaction(amount: number, type: TransactionTypes, userId: number) : Promise<MoneyTransaction> {
+        const user = await this.usersService.findById(userId)
+        if(user === null)
+            throw new NotFoundException('User not found.')
+
+        console.log(await this.applyTransaction(amount, type, user))
+        const transaction = await this.addTransaction(amount, type, user)
+        return transaction
+    }
+
+    private async applyTransaction(amount: number, type: TransactionTypes, user: User) : Promise<User> {
+        if(type === TransactionTypes.withdrawal && user.wallet < amount)
             throw new BadRequestException("Insufficient wallet.")
 
         // Update the user's wallet
-        transactionAuthor.wallet += body.type === TransactionTypes.deposit ? body.amount : -body.amount
-        this.usersService.saveUser(transactionAuthor)
+        if(type === TransactionTypes.withdrawal || type === TransactionTypes.payment) 
+            user.wallet -= amount
+        else
+            user.wallet +=amount
+        return await this.usersService.saveUser(user)
+    }
 
-        let transaction = this.transactionsRepository.create({
-            amount: body.amount,
-            type: body.type,
-            user: transactionAuthor
-        })
-        transaction = await this.transactionsRepository.save(transaction)
-
-        return transaction
+    private async addTransaction(amount: number, type: TransactionTypes, user: User) : Promise<MoneyTransaction> {
+        let transaction = this.transactionsRepository.create({amount, type, user})
+        return await this.transactionsRepository.save(transaction)
     }
 
     async getTransaction(params : TransactionId) : Promise<MoneyTransaction> {

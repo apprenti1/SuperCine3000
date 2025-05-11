@@ -1,7 +1,7 @@
 import { TicketTypes } from "src/common/enums/tickets-type.enum";
 import { Screening } from "src/screenings/screening.entity";
 import { User } from "src/users/user.entity";
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class Ticket{
@@ -17,6 +17,12 @@ export class Ticket{
     @ManyToMany(() => Screening, screening => screening.tickets, {cascade: true})
     @JoinTable()
     screenings: Screening[]
+        
+    @CreateDateColumn({type: "timestamptz"})
+    createdAt: Date
+
+    @UpdateDateColumn({type: "timestamptz"})
+    updatedAt: Date
 
     constructor(
         id: number,

@@ -21,9 +21,12 @@ import { Screening } from './screenings/screening.entity';
 import { ScreeningsModule } from './screenings/screening.module';
 import { Ticket } from './tickets/ticket.entity';
 import { TicketsModule } from './tickets/tickets.module';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus';
+
 
 @Module({
   imports: [
+    PrometheusModule.register(),
     UsersModule,
     AuthModule,
     TokensModule,

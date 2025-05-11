@@ -16,12 +16,14 @@ export class RolesGuard implements CanActivate{
     ) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
+        
         //If the route is public we go
         const isPublic : boolean | undefined = this.reflector.getAllAndOverride(IS_PUBLIC_KEY, [context.getHandler(), context.getClass()])
         if(isPublic === true) return true
-
+        
         // We get the token from the request
         const req : Request = context.switchToHttp().getRequest()
+        if (req.url === '/metrics') return true;
         const token = this.extractAccessTokenFromHeader(req)
         if(token === undefined)
             throw new UnauthorizedException('Authentication required.')

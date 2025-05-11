@@ -6,6 +6,7 @@ import { Ticket } from 'src/tickets/ticket.entity';
 import { User } from 'src/users/user.entity';
 import { MoneyTransaction } from 'src/transactions/transaction.entity';
 import { Repository, Between } from 'typeorm';
+import { TransactionTypes } from 'src/common/enums/transactions-type.enum';
 
 @Injectable()
 export class StatisticsService {
@@ -30,9 +31,9 @@ export class StatisticsService {
     
     // Calculate total revenue from tickets
     const ticketTransactions = await this.transactionRepository.find({
-      where: { type: 'CLASSIC' } // Assuming you have a transaction type
+      where: { type: TransactionTypes.payment } // Assuming you have a transaction type
     });
-    
+
     const totalRevenue = ticketTransactions.reduce((sum, transaction) => sum + transaction.amount, 0);
     
     return {
@@ -94,7 +95,7 @@ export class StatisticsService {
     });
 
     const totalRevenue = transactionsInRange.reduce((sum, transaction) => sum + transaction.amount, 0);
-    
+
     // Group screenings by movie to find most popular
     const movieScreenings = screenings.reduce((acc, screening) => {
       const movieId = screening.movie.id;
@@ -113,7 +114,7 @@ export class StatisticsService {
 
     // Convert to array and sort by tickets to find most popular
     const moviesPopularity = Object.values(movieScreenings)
-      .sort((a, b) => b.tickets - a.tickets);
+      .sort((a: MovieStats, b : MovieStats) => b.tickets - a.tickets);
 
     return {
       period: {
@@ -160,7 +161,7 @@ export class StatisticsService {
 
     // Convert to array and sort by ticket count
     const activeUsers = Object.values(userTickets)
-      .sort((a, b) => b.ticketCount - a.ticketCount);
+      .sort((a: UserStats, b: UserStats) => b.ticketCount - a.ticketCount);
 
     return {
       totalUsers,
@@ -169,4 +170,17 @@ export class StatisticsService {
       mostActiveUsers: activeUsers.slice(0, 10) // Top 10 most active users
     };
   }
+}
+
+interface MovieStats{
+      movieId: number
+      title: string
+      screeings: number
+      tickets: number
+}
+
+interface UserStats{
+      userId: number
+      username: string
+      ticketCount: number
 }

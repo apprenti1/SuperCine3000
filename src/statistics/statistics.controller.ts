@@ -1,10 +1,10 @@
 import { Controller, Get, Param, Query, UsePipes } from '@nestjs/common';
 import { StatisticsService } from './statistics.service';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { JoiValidationPipe } from 'src/common/pipes/joi-validation.pipe';
 import { movieIdValidation, MovieId } from 'src/movies/validation/movie-id.schema';
-import { SetRoles } from 'src/common/decorators/roles.decorator';
 import { Roles } from 'src/common/enums/roles.enum';
+import { SetRoles } from 'src/auth/decorators/setRoles.decorator';
+import { JoiValidationPipe } from 'src/common/pipes/JoiValidationPipe';
 
 @ApiTags('Statistics')
 @Controller('statistics')

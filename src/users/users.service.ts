@@ -131,7 +131,7 @@ export class UsersService{
     async seedUsers() {
         const users : User[] = [
             new User(
-                30000, 'admin@yopmail.com', 'admin', 'adminadmin', Roles.admin, 999, [], []
+                30000, 'admin@yopmail.com', 'admin', 'Respons!11', Roles.admin, 999, [], []
             ),
             new User(
                 30001, 'michel@yopmail.com', 'michel', 'michelmichel', Roles.customer, 30, [], []

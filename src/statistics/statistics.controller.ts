@@ -5,6 +5,7 @@ import { movieIdValidation, MovieId } from 'src/movies/validation/movie-id.schem
 import { Roles } from 'src/common/enums/roles.enum';
 import { SetRoles } from 'src/auth/decorators/setRoles.decorator';
 import { JoiValidationPipe } from 'src/common/pipes/JoiValidationPipe';
+import { TimeRangeRequest, timeRangeValidation } from './validation/time-range.schema';
 
 @ApiTags('Statistics')
 @Controller('statistics')
@@ -35,10 +36,12 @@ export class StatisticsController {
   @ApiQuery({ name: 'startDate', description: 'Start date in ISO format', type: String })
   @ApiQuery({ name: 'endDate', description: 'End date in ISO format', type: String })
   @SetRoles(Roles.admin)
+  @UsePipes(new JoiValidationPipe(timeRangeValidation))
   getTimeRangeStatistics(
-    @Query('startDate') startDate: string,
-    @Query('endDate') endDate: string
+    @Query() query: TimeRangeRequest
   ) {
+    const startDate = query.startDate
+    const endDate = query.endDate
     return this.statisticsService.getTimeRangeStatistics(
       new Date(startDate),
       new Date(endDate)

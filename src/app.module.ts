@@ -22,6 +22,7 @@ import { ScreeningsModule } from './screenings/screening.module';
 import { Ticket } from './tickets/ticket.entity';
 import { TicketsModule } from './tickets/tickets.module';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus';
+import { StatisticsModule } from './statistics/statistics.module';
 
 
 @Module({
@@ -35,6 +36,7 @@ import { PrometheusModule } from '@willsoto/nestjs-prometheus';
     MoviesModule,
     ScreeningsModule,
     TicketsModule,
+    StatisticsModule,
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',

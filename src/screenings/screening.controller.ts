@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UsePipes } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UsePipes } from "@nestjs/common";
 import { ScreeningsService } from "./screening.service";
 import { Public } from "src/auth/decorators/public.decorator";
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery } from "@nestjs/swagger";
@@ -14,6 +14,7 @@ import { CreateScreeningRequest, createScreeningValidation } from "./validation/
 import { UpdateScreeningRequest, updateScreeningValidation } from "./validation/update-screening.schema";
 import { DeleteResult } from "typeorm";
 import { PaginationRequest } from "src/common/validation/PaginationRequest";
+import { Request } from "express";
 
 @Controller('screenings')
 export class ScreeningsController{
@@ -65,6 +66,17 @@ export class ScreeningsController{
         @Body(new JoiValidationPipe(updateScreeningValidation)) body : UpdateScreeningRequest
     ) : Promise<Screening> {
         return this.screeningsService.patchScreening(params, body)
+    }
+
+    @Patch(':id/book')
+    @ApiBearerAuth()
+    @ApiOperation({summary: "Réserve le screening d'ID donné avec un ticket acheté par l'utilisateur."})
+    @ApiParam({name: 'id', description: "ID de la projection à modifier.", type: number, example: 1})
+    book(
+        @Param(new JoiValidationPipe(screeningIdValidation)) params: ScreeningId,
+        @Req() req : Request
+    ) {
+        return this.screeningsService.book(params, req['user'].sub)
     }
 
     @Delete(':id')

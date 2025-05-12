@@ -91,7 +91,6 @@ export class TransactionsService {
         if(user === null)
             throw new NotFoundException('User not found.')
 
-        console.log(await this.applyTransaction(amount, type, user))
         const transaction = await this.addTransaction(amount, type, user)
         return transaction
     }

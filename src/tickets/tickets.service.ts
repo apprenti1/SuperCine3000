@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Ticket } from "./ticket.entity";
 import { DeleteResult, Repository } from "typeorm";
@@ -25,6 +25,7 @@ export class TicketsService{
         @InjectRepository(Ticket)
         private ticketsRepository : Repository<Ticket>,
         private readonly usersService : UsersService,
+        @Inject(forwardRef(() => ScreeningsService))
         private readonly screeningsService: ScreeningsService,
         private readonly transactionsService: TransactionsService
     ) {}
@@ -164,8 +165,6 @@ export class TicketsService{
                 await this.transactionsService.newTransaction(-amountToPay, TransactionTypes.refund, user.id)
             else
                 await this.transactionsService.newTransaction(amountToPay,  TransactionTypes.payment, user.id)
-            //const t = await this.transactionsService.newTransaction(amountToPay,  ? TransactionTypes.refund : TransactionTypes.payment, user.id)
-            //console.log(t)
 
             ticket.type = body.type
         }
@@ -176,11 +175,37 @@ export class TicketsService{
         return ticket
     }
 
+    async addScreening(screening: Screening, ticket: Ticket) : Promise<Ticket> {
+        console.log((ticket.type === TicketTypes.super && ticket.screenings.length < 10))
+        if((ticket.type === TicketTypes.classic && ticket.screenings.length > 0)
+            || (ticket.type === TicketTypes.super && ticket.screenings.length > 9))
+            throw new ConflictException("Ticket is already used.")
+
+        ticket.screenings.push(screening)
+        let savedTicket = await this.ticketsRepository.save(ticket)
+        return savedTicket
+    }
+
     async deleteTicket(params: TicketId) : Promise<DeleteResult> {
         const deletedTicket = await this.ticketsRepository.delete(params.id)
         if(deletedTicket.affected === 0)
             throw new NotFoundException('Ticket not found.')
 
         return deletedTicket
+    }
+
+    async getTicketsByUserId(userId: number) : Promise<Ticket[]> {
+        const tickets = await this.ticketsRepository.createQueryBuilder('ticket')
+            .leftJoinAndSelect('ticket.screenings', 'screening')
+            .where(
+                `(ticket.type = '${TicketTypes.classic}' AND screening.id IS NULL) OR
+                (ticket.type = '${TicketTypes.super}')`
+            )
+            .andWhere("ticket.userId = :id", {id: userId})
+            .groupBy('ticket.id').addGroupBy('screening.id')
+            .having(`(ticket.type = '${TicketTypes.classic}' AND COUNT(screening.id) = 0) OR (ticket.type = '${TicketTypes.super}' AND COUNT(screening.id) < 10)`)
+            .getMany()
+
+        return tickets
     }
 }

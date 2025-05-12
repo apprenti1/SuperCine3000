@@ -13,6 +13,7 @@ import { Room } from "src/rooms/entities/room.entity";
 import ms from "ms";
 import { PaginationRequest } from "src/common/validation/PaginationRequest";
 import { Movie } from "src/movies/movie.entity";
+import { TicketsService } from "src/tickets/tickets.service";
 
 @Injectable()
 export class ScreeningsService{
@@ -20,7 +21,8 @@ export class ScreeningsService{
         @InjectRepository(Screening)
         private screeningRepository : Repository<Screening>,
         private readonly roomsService : RoomsService,
-        private readonly moviesService : MoviesService
+        private readonly moviesService : MoviesService,
+        private readonly ticketsService : TicketsService
     ) {}
 
     async listScreenings(queryParams: ListScreeningsParams & PaginationRequest) : Promise<ListingReturn<Screening>> {
@@ -126,7 +128,7 @@ export class ScreeningsService{
     }
 
     async patchScreening(params: ScreeningId, body: UpdateScreeningRequest) : Promise<Screening> {
-        let screening = await this.screeningRepository.findOne({where: {id: params.id}, relations: ['room', 'movie', 'screenings']})
+        let screening = await this.screeningRepository.findOne({where: {id: params.id}, relations: ['room', 'movie']})
         if(!screening)
             throw new NotFoundException("Screening not found.")
 
@@ -182,6 +184,19 @@ export class ScreeningsService{
         const conflictScreenings = await query.getMany()
 
         return conflictScreenings.length > 0
+    }
+
+    async book(params: ScreeningId, userId: number){
+        const screening = await this.screeningRepository.findOne({where: {id: params.id}})
+        if(screening === null)
+            throw new NotFoundException('Screening not found.')
+
+        let ticket = (await this.ticketsService.getTicketsByUserId(userId)).shift()
+        if(!ticket)
+            return new ConflictException("Not enough tickets to make a new booking.")
+
+        ticket = await this.ticketsService.addScreening(screening, ticket)
+        return ticket
     }
 
     async deleteScreening(params: ScreeningId) : Promise<DeleteResult> {
